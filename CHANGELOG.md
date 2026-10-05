@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v2.6.2] - 2026-10-06
+
+### Added
+
+- **Modern Dark Glassmorphic Theme & AppKit Appearance Overhaul (`ThemeManager.swift`)**:
+  - Engineered native macOS Dark Aqua theme matching modern enterprise dark dashboards (midnight `#080c16`, slate `#0f172a`, and subtle border cards).
+  - High-craft typographic and color-coded bit visualizer formatting: Neon Cyan (`#00e5ff` for network bits `n`), Royal Purple (`#a855f7` for subnet bits `s`), Emerald Green (`#10b981` for host bits `h`), and muted grey for dot separators.
+  - Window styling helper automatically configuring dark background vibrancy on startup while preserving manual dark mode toggling.
+- **Multi-Cloud Subnet Reservation Profiles (`CloudProfile`)**:
+  - Implemented reservation calculation engine supporting **Standard RFC 1918**, **AWS VPC** (5 reserved addresses: `.0` Network, `.1` VPC Router/Default Gateway, `.2` Amazon DNS, `.3` Reserved, `.last` Broadcast; min prefix `/28`), **Azure VNet** (5 reserved addresses: `.0` Network, `.1` Default Gateway, `.2` Primary DNS, `.3` Secondary DNS, `.last` Broadcast; min prefix `/29`), **Google Cloud (GCP) VPC** (4 reserved addresses: `.0` Network, `.1` Default Gateway, `.last-1` Reserved, `.last` Broadcast; min prefix `/29`), and **Oracle Cloud (OCI)** (3 reserved addresses: `.0` Network, `.1` Default Gateway, `.last` Broadcast; min prefix `/30`).
+  - Added interactive Cloud Profile popup selector dynamically updating usable IP ranges, host counts, and role mappings without altering standard RFC calculations.
+- **Authoritative Real-Time RFC 1918 & IP Address Range Classifier**:
+  - Added real-time classification badge dynamically categorizing input IPv4 addresses: RFC 1918 Private (Class A `10.0.0.0/8`, Class B `172.16.0.0/12`, Class C `192.168.0.0/16`), RFC 6598 CGNAT / Shared Space (`100.64.0.0/10`), RFC 1122 Loopback (`127.0.0.0/8`), RFC 3927 Link-Local APIPA (`169.254.0.0/16`), RFC 5771 Multicast Class D (`224.0.0.0/4`), RFC 1122 Reserved Class E (`240.0.0.0/4`), and Public Routable IPv4.
+  - Real-time pill badge with tailored color schemes (emerald green for private, sky blue for public, amber for CGNAT, teal for loopback, purple for reserved).
+- **VLSM Capacity & Host Efficiency Analytics**:
+  - Added real-time host utilization analytics to the VLSM tab computing total requested hosts vs. allocated block capacity, wasted host overhead, and efficiency percentage.
+  - Interactive progress indicator and monospace analytics label providing immediate feedback on subnet address space optimization.
+- **RFC 4193 Unique Local IPv6 Address (ULA) Generator**:
+  - Implemented cryptographically secure ULA generator utilizing macOS `SecRandomCopyBytes` for 40-bit pseudo-random Global IDs.
+  - One-click "Generate ULA (RFC 4193)" button creating canonical `fdXX:XXXX:XXXX::/48` prefixes and default `/64` subnets.
+- **Spreadsheet-Safe Data Portability Engine (`DataPortability`)**:
+  - Implemented defense-in-depth protection against Spreadsheet Formula Injection (CWE-1236) by automatically prefixing dangerous leading execution characters (`=`, `+`, `-`, `@`) with `'`.
+  - Re-engineered CSV exports (`exportSubnetsHosts`, `exportFLSM`, `exportVLSM`) adhering strictly to RFC 4180 quotation escaping, standard comma `,` delimiters, and UTF-8 encoding.
+  - Added Plain Text ASCII table formatter (`exportPlainTextTable` / `exportAsciiTable`) with dynamic column alignment.
+- **Automated Verification Test Suite (`SubnetCalcTests/main.swift`)**:
+  - Added 76 automated test assertions covering multi-cloud ranges, bounds checking, address classifications, ULA entropy and canonical formatting, CSV escaping, and zero-regression parity.
+
+### Changed
+
+- Updated version numbers across project bundle: `MARKETING_VERSION = 2.6.2`, `CURRENT_PROJECT_VERSION = 14`, and about panel fallback to `2.6.2 (Build 14)`.
+- Replaced non-standard semicolon `;` in CSV export outputs with standard RFC 4180 comma delimiters.
+- Completely preserved the exact 6-tab architecture (`IPv4`, `Subnets/Hosts`, `CIDR`, `FLSM`, `VLSM`, `IPv6`) with zero breaking changes to existing calculations.
+
+---
+
 ## [v2.6.1] - 2026-10-05
 
 ### Added

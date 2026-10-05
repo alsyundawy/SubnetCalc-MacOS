@@ -19,6 +19,7 @@
 		94DBA15627DBD0BF00F61918 /* SubnetCalc.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 94DBA15427DBD0BF00F61918 /* SubnetCalc.xcdatamodeld */; };
 		94DBA15E27DBDAC000F61918 /* AddrHistory+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DBA15C27DBDAC000F61918 /* AddrHistory+CoreDataClass.swift */; };
 		94DBA15F27DBDAC000F61918 /* AddrHistory+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DBA15D27DBDAC000F61918 /* AddrHistory+CoreDataProperties.swift */; };
+		94B1C509256ABC1B00F992A3 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B1C508256ABC1B00F992A3 /* ThemeManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		94DBA15527DBD0BF00F61918 /* SubnetCalc.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubnetCalc.xcdatamodel; sourceTree = "<group>"; };
 		94DBA15C27DBDAC000F61918 /* AddrHistory+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddrHistory+CoreDataClass.swift"; sourceTree = "<group>"; };
 		94DBA15D27DBDAC000F61918 /* AddrHistory+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddrHistory+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		94B1C508256ABC1B00F992A3 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 				94DBA15C27DBDAC000F61918 /* AddrHistory+CoreDataClass.swift */,
 				94DBA15D27DBDAC000F61918 /* AddrHistory+CoreDataProperties.swift */,
 				94B1C506256ABC1B00F992A3 /* IPSubnetcalc.swift */,
+				94B1C508256ABC1B00F992A3 /* ThemeManager.swift */,
 				94DBA15427DBD0BF00F61918 /* SubnetCalc.xcdatamodeld */,
 				94AC2612256AF7C900811156 /* SubnetCalcAppDelegate.swift */,
 			);
@@ -280,6 +283,7 @@
 				94AC2613256AF7C900811156 /* SubnetCalcAppDelegate.swift in Sources */,
 				94DBA15E27DBDAC000F61918 /* AddrHistory+CoreDataClass.swift in Sources */,
 				94DBA15F27DBDAC000F61918 /* AddrHistory+CoreDataProperties.swift in Sources */,
+				94B1C509256ABC1B00F992A3 /* ThemeManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,7 +417,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = VNLK894MAE;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -425,7 +429,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MARKETING_VERSION = 2.6.1;
+				MARKETING_VERSION = 2.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mulot.subnetcalc;
 				PRODUCT_NAME = SubnetCalc;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -444,7 +448,7 @@
 				CODE_SIGN_ENTITLEMENTS = SubnetCalc.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = VNLK894MAE;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -455,7 +459,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INSTALL_PATH = /Applications;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MARKETING_VERSION = 2.6.1;
+				MARKETING_VERSION = 2.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mulot.subnetcalc;
 				PRODUCT_NAME = SubnetCalc;
 				PROVISIONING_PROFILE_SPECIFIER = "";

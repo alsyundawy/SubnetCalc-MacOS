@@ -1,6 +1,6 @@
 # SubnetCalc for macOS — Technical Documentation Notes (DOCNOTE)
 
-> - **Release Version**: `v2.6.1` (Multi-Arch Modernization, Universal 2 & Stability Release)
+> - **Release Version**: `v2.6.2` (Modern Dark Glassmorphic UI, Multi-Cloud Subnetting & Enterprise Hardening)
 > - **Original Creator & Lead Developer**: [`Julien Mulot`](https://github.com/mulot) — [`https://subnetcalc.mulot.org`](https://subnetcalc.mulot.org)
 > - **Maintainer, CI/CD & Modernization**: [`Harry Dertin Sutisna Alsyundawy (@alsyundawy)`](https://github.com/alsyundawy) — [`ALSYUNDAWY IT SOLUTION`](https://alsyundawy.com)
 > - **Repository**: [`https://github.com/alsyundawy/SubnetCalc-MacOS`](https://github.com/alsyundawy/SubnetCalc-MacOS)
@@ -12,7 +12,16 @@
 
 **SubnetCalc for macOS** is an ultra-lightweight, 100% native AppKit/Cocoa desktop application engineered for network administrators, systems architects, and DevOps engineers. Unlike heavy web-wrapped or Electron utilities, SubnetCalc compiles down to native machine instructions, delivering sub-millisecond calculation times, instant UI responsiveness, and a baseline RAM footprint of **less than 25 MB RSS**.
 
-Version **2.6.1** represents a comprehensive modernization milestone. It establishes a multi-architecture CI/CD pipeline, automates Universal 2 packaging, enhances modern macOS Sequoia (15.x) and Sonoma (14.x) compatibility, audits the codebase across 13 engineering pillars, and resolves critical edge-case runtime crash vectors.
+Version **2.6.2** delivers a landmark modernization and feature expansion. Drawing inspiration from modern dark enterprise dashboards (Visual Subnet Calculator Web GUI and KusumaVision NMS V2), v2.6.2 integrates:
+
+1. **Pillar 1: Modern Dark Glassmorphic AppKit Overhaul** with high-contrast palette tokens (`#080c16`, `#0f172a`), Dark Aqua appearance, and vivid attributed bit visualizer (Neon Cyan `n`, Royal Purple `s`, Emerald Green `h`, and muted gray `.`).
+2. **Pillar 2: Multi-Cloud Subnet Reservation Profiles** supporting AWS VPC, Azure VNet, Google Cloud (GCP) VPC, Oracle Cloud (OCI), and Standard RFC 1918.
+3. **Pillar 3: Real-Time RFC 1918 & IP Range Classifier** with color-coded pill status badges.
+4. **Pillar 4: VLSM Capacity & Host Efficiency Analytics** calculating real-time host utilization, address space waste overhead, and efficiency percentage.
+5. **Pillar 5: RFC 4193 IPv6 ULA Generator** powered by CSPRNG (`SecRandomCopyBytes`) 40-bit Global ID entropy.
+6. **Pillar 6: Spreadsheet-Safe Data Portability Engine** defending against CSV Formula Injection (CWE-1236) and producing RFC 4180 CSV and Plain Text ASCII tables.
+
+All additions are 100% additive and non-breaking, strictly preserving the classic 6-tab structure (`IPv4`, `Subnets/Hosts`, `CIDR`, `FLSM`, `VLSM`, `IPv6`) and backwards parity.
 
 ### Core Architectural Invariants
 

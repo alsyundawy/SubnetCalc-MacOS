@@ -11,7 +11,7 @@
 <h3 align="center">High-Performance, Native Swift & Cocoa IPv4 & IPv6 Subnet Calculator for macOS (Universal 2: Apple Silicon & Intel)</h3>
 
 <p align="center">
-  <a href="https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest"><img src="https://img.shields.io/badge/Release-v2.6.1-2ea44f?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release v2.6.1"></a>
+  <a href="https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest"><img src="https://img.shields.io/badge/Release-v2.6.2-2ea44f?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release v2.6.2"></a>
   <a href="https://apple.com/macos"><img src="https://img.shields.io/badge/Platform-macOS%20Sequoia%20%7C%20Sonoma%20%7C%20Ventura-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Platform"></a>
   <a href="https://developer.apple.com/swift/"><img src="https://img.shields.io/badge/Language-Swift%206%20%2F%205.x-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift Language"></a>
   <a href="https://developer.apple.com/documentation/appkit"><img src="https://img.shields.io/badge/Framework-Native%20AppKit%20Cocoa-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="AppKit Cocoa"></a>
@@ -21,12 +21,12 @@
 </p>
 
 <p align="center">
-  A production-grade, ultra-low-footprint native macOS utility for network engineers, systems administrators, and DevOps professionals. SubnetCalc delivers instantaneous IPv4 and IPv6 subnet calculations, interactive mask synchronization, bitmapped network/subnet/host visualizations, FLSM and VLSM decomposition tables, Core Data calculation history, and one-click CSV export — compiled natively with zero browser runtime overhead.
+  A production-grade, ultra-low-footprint native macOS utility for network engineers, systems administrators, and DevOps professionals. SubnetCalc delivers instantaneous IPv4 and IPv6 subnet calculations, interactive mask synchronization, bitmapped network/subnet/host visualizations, FLSM and VLSM decomposition tables, Core Data calculation history, multi-cloud subnet profiles, RFC 4193 ULA generation, and one-click spreadsheet-safe CSV export — compiled natively with zero browser runtime overhead.
 </p>
 
 <p align="center">
   <a href="#downloads--artifact-catalogs">
-    <img src="https://img.shields.io/badge/🚀_Download_Artifacts-v2.6.1-238636?style=for-the-badge&logo=cloudsmith&logoColor=white" alt="Download Artifacts">
+    <img src="https://img.shields.io/badge/🚀_Download_Artifacts-v2.6.2-238636?style=for-the-badge&logo=cloudsmith&logoColor=white" alt="Download Artifacts">
   </a>
   <a href="https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest">
     <img src="https://img.shields.io/badge/🪞_Releases_&_Changelog-GitHub-0284c7?style=for-the-badge&logo=github&logoColor=white" alt="Releases & Changelog">
@@ -47,7 +47,7 @@
 > Maintained, modernized, and CI/CD automated by<br>
 > **[`HARRY DERTIN SUTISNA ALSYUNDAWY (@alsyundawy)`](https://github.com/alsyundawy)** — [`ALSYUNDAWY IT SOLUTION`](https://alsyundawy.com)<br>
 >
-> 🍏 **[`Latest Releases (v2.6.1)`](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest)** &nbsp;|&nbsp;
+> 🍏 **[`Latest Releases (v2.6.2)`](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest)** &nbsp;|&nbsp;
 > 📖 **[`Release DocNotes (DOCNOTE.md)`](DOCNOTE.md)** &nbsp;|&nbsp;
 > 📜 **[`Changelog (CHANGELOG.md)`](CHANGELOG.md)** &nbsp;|&nbsp;
 > 🐛 **[`Issue Tracker`](https://github.com/alsyundawy/SubnetCalc-MacOS/issues)** &nbsp;|&nbsp;
@@ -179,12 +179,12 @@ Architectures in the fat file: /Applications/SubnetCalc.app/Contents/MacOS/Subne
 
 Pre-compiled production releases and disk images are available on the [GitHub Releases](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest) page:
 
-| Package | Format | File Name | Architecture | Compatibility |
-| :--- | :--- | :--- | :--- | :--- |
-| **Universal Installer** | `.dmg` Disk Image | `SubnetCalc-2.6.1-Universal.dmg` | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
-| **Apple Silicon Slice** | `.dmg` Disk Image | `SubnetCalc-2.6.1-arm64.dmg` | `arm64` (Apple Silicon) | macOS 11.0+ |
-| **Intel Mac Slice** | `.dmg` Disk Image | `SubnetCalc-2.6.1-x64.dmg` | `x86_64` (Intel Macs) | macOS 10.15+ (Catalina) |
-| **Universal Archive** | `.zip` Archive | `SubnetCalc-2.6.1-Universal.zip` | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
+| Package                 | Format            | File Name                        | Architecture                   | Compatibility           |
+| :---------------------- | :---------------- | :------------------------------- | :----------------------------- | :---------------------- |
+| **Universal Installer** | `.dmg` Disk Image | `SubnetCalc-2.6.2-Universal.dmg` | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
+| **Apple Silicon Slice** | `.dmg` Disk Image | `SubnetCalc-2.6.2-arm64.dmg`     | `arm64` (Apple Silicon)        | macOS 11.0+             |
+| **Intel Mac Slice**     | `.dmg` Disk Image | `SubnetCalc-2.6.2-x64.dmg`       | `x86_64` (Intel Macs)          | macOS 10.15+ (Catalina) |
+| **Universal Archive**   | `.zip` Archive    | `SubnetCalc-2.6.2-Universal.zip` | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
 
 ---
 
@@ -262,7 +262,22 @@ ditto -c -k --sequesterRsrc --keepParent \
 
 ---
 
-## Changelog (v2.6.1)
+## Changelog
+
+### [v2.6.2] — Modern Dark Glassmorphic UI & Multi-Cloud Subnetting
+
+- **Modern Dark Glassmorphic Theme (`ThemeManager.swift`)**:
+  - Native macOS Dark Aqua theme (`#080c16`, `#0f172a`) and attributed color-coded bit visualizer (Cyan `n`, Purple `s`, Emerald `h`, Muted `.`).
+- **Multi-Cloud Subnet Reservation Profiles (`CloudProfile`)**:
+  - Interactive profile engine for AWS VPC, Azure VNet, Google Cloud (GCP) VPC, Oracle Cloud (OCI), and Standard RFC 1918.
+- **Real-Time RFC 1918 & IP Range Classifier**:
+  - Live status pill badge categorizing Private, Public, CGNAT, Loopback, Link-Local, Multicast, and Reserved IPs.
+- **VLSM Capacity & Host Efficiency Analytics**:
+  - Real-time host utilization, block capacity, waste overhead, and efficiency percentage.
+- **RFC 4193 Unique Local IPv6 Address (ULA) Generator**:
+  - CSPRNG (`SecRandomCopyBytes`) 40-bit Global ID generator for canonical `fdXX:XXXX:XXXX::/48` prefixes.
+- **Spreadsheet-Safe Data Portability Engine (`DataPortability`)**:
+  - Defense against CSV Formula Injection (CWE-1236) and RFC 4180 quotation-escaped CSV and ASCII table exports.
 
 ### [v2.6.1] — Multi-Arch Modernization & Universal 2 Release Pipeline
 
