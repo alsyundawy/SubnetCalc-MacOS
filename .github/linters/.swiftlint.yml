@@ -1,0 +1,46 @@
+# SwiftLint Configuration for SubnetCalc-MacOS
+# https://github.com/realm/SwiftLint
+
+# Excluded paths
+excluded:
+  - .kilo
+  - .trunk
+  - .build
+  - build
+  - DerivedData
+  - Pods
+  - Carthage
+  - SubnetCalcUITests
+
+# Disabled rules (tuned for AppKit / Cocoa codebase compatibility)
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+  - type_body_length
+  - file_length
+  - function_body_length
+  - cyclomatic_complexity
+  - identifier_name
+  - type_name
+  - statement_position
+  - legacy_constructor
+  - control_statement
+  - comment_spacing
+  - opening_brace
+  - colon
+  - vertical_whitespace
+  - comma
+  - for_where
+  - function_name_whitespace
+  - shorthand_operator
+  - unused_closure_parameter
+  - force_cast
+
+# Opt-in rules
+opt_in_rules:
+  - fatal_error_message
+  - first_where
+  - redundant_nil_coalescing
+  - unneeded_break_in_switch
+
+reporter: "emoji"
