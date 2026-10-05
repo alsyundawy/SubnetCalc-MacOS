@@ -1645,6 +1645,52 @@ extension IPSubnetCalc {
         }
         return "Public Routable IPv4"
     }
+
+    /**
+     Classify an IPv6 address according to authoritative IETF RFC specifications
+     */
+    public static func classifyIPv6Address(_ ipAddress: String) -> String {
+        let clean = ipAddress.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if clean == "::1" || clean.hasPrefix("::1/") {
+            return "RFC 4291 Loopback"
+        }
+        if clean == "::" || clean.hasPrefix("::/") {
+            return "RFC 4291 Unspecified"
+        }
+        if clean.hasPrefix("fc") || clean.hasPrefix("fd") {
+            return "RFC 4193 Unique Local (ULA Private)"
+        }
+        if clean.hasPrefix("fe8") || clean.hasPrefix("fe9") || clean.hasPrefix("fea") || clean.hasPrefix("feb") {
+            return "RFC 4291 Link-Local Unicast"
+        }
+        if clean.hasPrefix("ff") {
+            return "RFC 4291 Multicast"
+        }
+        if clean.hasPrefix("2001:db8") {
+            return "RFC 3849 Documentation"
+        }
+        if clean.hasPrefix("2") || clean.hasPrefix("3") {
+            return "RFC 4291 Global Unicast (Public)"
+        }
+        if clean.hasPrefix("::ffff:") || clean.hasPrefix("0:0:0:0:0:ffff:") {
+            return "RFC 4291 IPv4-Mapped"
+        }
+        if clean.hasPrefix("64:ff9b:") {
+            return "RFC 6052 IPv4-IPv6 Translation"
+        }
+        return "IPv6"
+    }
+
+    /**
+     Unified IP address classification (IPv4 or IPv6)
+     */
+    public static func classifyAnyAddress(_ ipAddress: String) -> String {
+        if ipAddress.contains(":") {
+            return classifyIPv6Address(ipAddress)
+        } else {
+            return classifyIPv4Address(ipAddress)
+        }
+    }
 }
 
 // MARK: - Spreadsheet-Safe Data Portability Engine

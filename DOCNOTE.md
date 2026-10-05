@@ -186,3 +186,28 @@ In conformance with Google Engineering Practices, OWASP Top 10 2025, and CWE Top
 11. **Maintainability Review**: Zero compiler warnings, idiomatic Swift 5/6 syntax, comprehensive documentation comments.
 12. **Scalability Review**: Completely stateless bitwise engine handling arbitrary subnet iterations up to `/32`.
 13. **Readability Review**: Passed SwiftLint strict with 0 violations across all codebase files.
+
+---
+
+## 6. UI/UX Professional Layout Refinements & Zero-Brown Theme Architecture
+
+Following empirical visual validation and user design feedback on v2.6.2:
+
+1. **Eradication of Muddy Brown Table Backgrounds**:
+   - In macOS Dark Aqua appearance, system default `controlBackgroundColor` resolves to a warm sepia dark gray. When contrasted against our deep midnight navy background (`#080c16` / `#0f172a`), it produced an unappealing brown tint.
+   - Re-engineered all `NSTableView` instances (`subnetsHostsView`, `viewFLSM`, `viewVLSM`) and enclosing `NSScrollView`/`NSClipView` using custom tokens `ThemeManager.tableBackground` (`#0f172a`), `ThemeManager.tableRowAlt` (`#141e37`), and `ThemeManager.tableGridColor` (`rgba(255,255,255,0.08)`).
+   - Implemented `NSTableViewDelegate.tableView(_:willDisplayCell:for:row:)` ensuring every data cell renders alternating sleek dark rows with crisp `#f1f5f9` text and zero sepia tint.
+
+2. **Resolution of IPv6 ULA Button Overlap & Symmetrical Geometry**:
+   - Relocated the "Generate ULA" button from the box border (`x: 10, y: 576` which previously collided with the box header label "IPv6 Address") to directly inside the IPv6 Address card adjacent to the address field (`x: 300, y: 11, width: 106, height: 26`).
+   - Repositioned the "Short" checkbox to `x: 345, y: 571`, establishing 250px of clean whitespace separation from the "IPv6 Address" title.
+   - Symmetrically widened the "IPv6 Address" box to 418px and narrowed "IPv4 conversion" to 188px with 6px uniform padding on both margins.
+
+3. **Standard Default Form Inputs (`/24` IPv4 and `/64` IPv6)**:
+   - Configured initial form inputs across all tabs (`IPv4`, `Subnets/Hosts`, `FLSM`, `VLSM`) to default to standard classless `/24` (`255.255.255.0`) instead of legacy Class A `/8`.
+   - Initialized `IPv6` mask bits to standard `/64`.
+   - Populated `addrField` on launch with `10.0.0.0/24` and automatically performed initial calculation, presenting a fully populated, modern dark UI immediately on application start.
+
+4. **Intelligent IPv6 RFC Classification**:
+   - Expanded `IPSubnetCalc` with `classifyIPv6Address` identifying RFC 4193 ULA (`fc00::/7`), RFC 4291 Link-Local (`fe80::/10`), Loopback (`::1`), Multicast (`ff00::/8`), Documentation (`2001:db8::/32`), and Global Unicast.
+   - Upgraded status pill badges to display concise labels (`ULA`, `Private`, `Public`, `CGNAT`, `Loopback`, `Link-Local`, `Multicast`, `Reserved`) with full RFC descriptions in interactive tooltips, resolving the previous bug where IPv6 ULA addresses defaulted to "Public".

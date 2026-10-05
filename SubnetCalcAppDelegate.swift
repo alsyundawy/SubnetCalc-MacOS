@@ -11,12 +11,13 @@ import CoreData
 import UniformTypeIdentifiers
 
 @main
-class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSTableViewDataSource {
+class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate {
     //*******************
     //Private Constants
     //*******************
     private enum Constants {
         static let defaultIP: String = "10.0.0.0"
+        static let defaultIPv4Mask: String = "24"
         static let defaultIPv6Mask: String = "64"
         static let defaultIPv6to4Mask: Int = 96
         static let maxAddrHistory: Int = 30
@@ -149,6 +150,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         for bits in (8...32) {
             maskBitsCombo.addItem(withObjectValue: String(bits))
         }
+        maskBitsCombo.selectItem(withObjectValue: Constants.defaultIPv4Mask)
         for bits in (0...24) {
             subnetBitsCombo.addItem(withObjectValue: String(bits))
         }
@@ -170,6 +172,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         for bits in (8...32) {
             maskBitsFLSMCombo.addItem(withObjectValue: String(bits))
         }
+        maskBitsFLSMCombo.selectItem(withObjectValue: Constants.defaultIPv4Mask)
         slideFLSM.integerValue = 1
     }
 
@@ -180,6 +183,8 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         for bits in (8...32) {
             maskBitsVLSMCombo.addItem(withObjectValue: String(bits))
         }
+        maskBitsVLSMCombo.selectItem(withObjectValue: Constants.defaultIPv4Mask)
+        globalMaskVLSM = UInt32(Constants.defaultIPv4Mask) ?? 24
     }
 
     /**
@@ -266,7 +271,12 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
 
     private func updateRFCClassification() {
         guard let ipsc = ipsc else { return }
-        let classification = IPSubnetCalc.classifyIPv4Address(ipsc.ipv4Address)
+        let classification: String
+        if addrField.stringValue.contains(":") {
+            classification = IPSubnetCalc.classifyIPv6Address(ipsc.ipv6Address)
+        } else {
+            classification = IPSubnetCalc.classifyIPv4Address(ipsc.ipv4Address)
+        }
         if let badge = rfcClassificationBadge {
             ThemeManager.updateBadge(for: badge, classification: classification)
         }
@@ -467,9 +477,9 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         if (addrField.stringValue.isEmpty) {
             if (ipsc == nil)
             {
-                addrField.stringValue = Constants.defaultIP
+                addrField.stringValue = "\(Constants.defaultIP)/\(Constants.defaultIPv4Mask)"
                 ipaddr = Constants.defaultIP
-                ipmask = nil
+                ipmask = Constants.defaultIPv4Mask
             }
             else {
                 addrField.stringValue = ipsc!.ipv4Address
@@ -490,14 +500,18 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                         ipmask = String(maskVal - Constants.defaultIPv6to4Mask)
                     }
                     else {
-                        ipmask = "8"
+                        ipmask = Constants.defaultIPv4Mask
                     }
                 }
             }
             catch {
             }
-            if (ipmask == nil && ipsc != nil) {
-                ipmask = String(ipsc!.maskBits)
+            if (ipmask == nil) {
+                if (ipsc != nil) {
+                    ipmask = String(ipsc!.maskBits)
+                } else {
+                    ipmask = Constants.defaultIPv4Mask
+                }
             }
         }
         do {
@@ -507,7 +521,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 ipsc = IPSubnetCalc(ipAddress: ipaddr, maskbits: maskVal)
             }
             else {
-                ipsc = IPSubnetCalc(ipaddr)
+                ipsc = IPSubnetCalc(ipAddress: ipaddr, maskbits: Int(Constants.defaultIPv4Mask) ?? 24)
             }
             if (ipsc != nil) {
                 self.doAddressMap()
@@ -608,6 +622,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         for index in (1...128) {
             ipv6maskBitsCombo.addItem(withObjectValue: String(index))
         }
+        ipv6maskBitsCombo.selectItem(withObjectValue: Constants.defaultIPv6Mask)
         for index in (0...127) {
             NSDecimalPower(&total, &number , index, NSDecimalNumber.RoundingMode.plain)
             ipv6maxHostsCombo.addItem(withObjectValue: total)
@@ -693,7 +708,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             return
         }
         do {
-            let maskVal = ipmask != nil ? Int(ipmask!)! : Int(Constants.defaultIPv6Mask)!
+            let maskVal = ipmask.flatMap { Int($0) } ?? (Int(Constants.defaultIPv6Mask) ?? 64)
             try IPSubnetCalc.validateIPv6(ipAddress: ipaddr, mask: maskVal)
             //print("IP Address: \(ipaddr) mask: \(ipmask)")
             ipsc = IPSubnetCalc(ipv6: ipaddr, maskbits: maskVal)
@@ -705,6 +720,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 self.doFLSM()
                 self.doVLSM()
                 self.doIPv6()
+                self.updateRFCClassification()
             }
         }
         catch SubnetCalcError.invalidIPv6(let info) {
@@ -1212,59 +1228,51 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 }
             }
             else if (tableView == viewVLSM) {
-                //print("refresh View VLSM")
-                if (tableColumn != nil) {
-                    if (tableColumn!.identifier.rawValue == "numVLSMCol") {
+                if let column = tableColumn, let baseSubnet = IPSubnetCalc.digitize(ipAddress: ipsc!.subnetId()) {
+                    let colId = column.identifier.rawValue
+                    if colId == "numVLSMCol" {
                         return (row + 1)
                     }
-                    else if (tableColumn!.identifier.rawValue == "subnetVLSMCol") {
-                        var subnet = IPSubnetCalc.digitize(ipAddress: ipsc!.subnetId())!
-                        if (row > 0) {
-                            for index in (0...(row - 1)) {
-                                subnet = subnet + ~IPSubnetCalc.digitize(maskbits: subnetsVLSM[index].0)! + 1
+                    var subnet = baseSubnet
+                    if row > 0 {
+                        for index in 0...(row - 1) {
+                            if let maskDig = IPSubnetCalc.digitize(maskbits: subnetsVLSM[index].0) {
+                                subnet = subnet + ~maskDig + 1
                             }
                         }
-                        return (IPSubnetCalc.dottedDecimal(ipAddress: subnet))
                     }
-                    else if (tableColumn!.identifier.rawValue == "maskVLSMCol") {
-                        return (subnetsVLSM[row].0)
-                    }
-                    else if (tableColumn!.identifier.rawValue == "nameVLSMCol") {
-                        return (subnetsVLSM[row].1)
-                    }
-                    else if (tableColumn!.identifier.rawValue == "usedVLSMCol") {
-                        return (subnetsVLSM[row].2)
-                    }
-                    else if (tableColumn!.identifier.rawValue == "rangeVLSMCol") {
-                        var subnet = IPSubnetCalc.digitize(ipAddress: ipsc!.subnetId())!
-                        if (row > 0) {
-                            for index in (0...(row - 1)) {
-                                subnet = subnet + ~IPSubnetCalc.digitize(maskbits: subnetsVLSM[index].0)! + 1
-                            }
-                        }
-                        let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: (subnetsVLSM[row].0))
-                        if (ipsc_tmp != nil)
-                        {
-                            return (ipsc_tmp!.subnetRange())
-                        }
-                    }
-                    else if (tableColumn!.identifier.rawValue == "broadcastVLSMCol") {
-                        var subnet = IPSubnetCalc.digitize(ipAddress: ipsc!.subnetId())!
-                        if (row > 0) {
-                            for index in (0...(row - 1)) {
-                                subnet = subnet + ~IPSubnetCalc.digitize(maskbits: subnetsVLSM[index].0)! + 1
-                            }
-                        }
-                        let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: (subnetsVLSM[row].0))
-                        if (ipsc_tmp != nil)
-                        {
-                            return (ipsc_tmp!.subnetBroadcast())
-                        }
+                    if colId == "subnetVLSMCol" {
+                        return IPSubnetCalc.dottedDecimal(ipAddress: subnet)
+                    } else if colId == "maskVLSMCol" {
+                        return subnetsVLSM[row].0
+                    } else if colId == "nameVLSMCol" {
+                        return subnetsVLSM[row].1
+                    } else if colId == "usedVLSMCol" {
+                        return subnetsVLSM[row].2
+                    } else if colId == "rangeVLSMCol" {
+                        let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: subnetsVLSM[row].0)
+                        return ipscTmp?.subnetRange()
+                    } else if colId == "broadcastVLSMCol" {
+                        let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: subnetsVLSM[row].0)
+                        return ipscTmp?.subnetBroadcast()
                     }
                 }
             }
         }
-        return (nil)
+        return nil
+    }
+
+    /**
+     Auto invoked before displaying a cell in any table view.
+     Enforces sleek modern dark styling across all columns and eliminates default brown backgrounds.
+     */
+    func tableView(_ tableView: NSTableView, willDisplayCell cell: Any, for tableColumn: NSTableColumn?, row: Int) {
+        if let textCell = cell as? NSTextFieldCell {
+            textCell.textColor = ThemeManager.tableTextPrimary
+            textCell.backgroundColor = (row % 2 == 0) ? ThemeManager.tableBackground : ThemeManager.tableRowAlt
+            textCell.drawsBackground = true
+            textCell.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+        }
     }
 
     /**
@@ -1993,16 +2001,25 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             }
         }
 
-        // 4. Setup IPv6 ULA Generator Button in IPv6 Tab
-        if tabView.numberOfTabViewItems > 5 {
-            if let ipv6View = tabView.tabViewItem(at: 5).view {
-                let ulaButton = NSButton(frame: NSRect(x: 10, y: 576, width: 190, height: 28))
-                ulaButton.title = "Generate ULA (RFC 4193)"
+        // 4. Setup Tables with Sleek Modern Dark Styling (Eradicate Brown Backgrounds)
+        subnetsHostsView.delegate = self
+        viewFLSM.delegate = self
+        viewVLSM.delegate = self
+        ThemeManager.styleTableView(subnetsHostsView)
+        ThemeManager.styleTableView(viewFLSM)
+        ThemeManager.styleTableView(viewVLSM)
+
+        // 5. Setup IPv6 ULA Generator Button inside IPv6 Address Box (Zero Overlap)
+        if let ipv6Box = ipv6Address.superview {
+            if ipv6Box.subviews.first(where: { ($0 as? NSButton)?.action == #selector(generateIPv6ULAAction(_:)) }) == nil {
+                let ulaButton = NSButton(frame: NSRect(x: 300, y: 11, width: 106, height: 26))
+                ulaButton.title = "Generate ULA"
                 ulaButton.bezelStyle = .rounded
                 ulaButton.font = NSFont.systemFont(ofSize: 11, weight: .medium)
                 ulaButton.target = self
                 ulaButton.action = #selector(generateIPv6ULAAction(_:))
-                ipv6View.addSubview(ulaButton)
+                ulaButton.toolTip = "Generate RFC 4193 Unique Local IPv6 Address (ULA)"
+                ipv6Box.addSubview(ulaButton)
             }
         }
     }
@@ -2019,6 +2036,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         initFLSMTab()
         initVLSMTab()
         setupModernUI()
+
+        if addrField.stringValue.isEmpty {
+            addrField.stringValue = "\(Constants.defaultIP)/\(Constants.defaultIPv4Mask)"
+        }
+        try? doCalc()
     }
 
     /**

@@ -40,6 +40,14 @@ public struct ThemeManager {
     public static let reservedPurpleBg = NSColor(calibratedRed: 88/255, green: 28/255, blue: 135/255, alpha: 0.85)
     public static let reservedPurpleFg = NSColor(calibratedRed: 192/255, green: 132/255, blue: 252/255, alpha: 1.0)
 
+    // MARK: - Table View Design Tokens (Deep Navy / Sleek Slate - Zero Brown)
+    public static let tableBackground = NSColor(calibratedRed: 15/255, green: 23/255, blue: 42/255, alpha: 1.0)     // #0f172a
+    public static let tableRowAlt = NSColor(calibratedRed: 20/255, green: 30/255, blue: 55/255, alpha: 1.0)         // #141e37
+    public static let tableGridColor = NSColor(calibratedWhite: 1.0, alpha: 0.08)
+    public static let tableHeaderColor = NSColor(calibratedRed: 30/255, green: 41/255, blue: 59/255, alpha: 1.0)    // #1e293b
+    public static let tableTextPrimary = NSColor(calibratedRed: 241/255, green: 245/255, blue: 249/255, alpha: 1.0) // Slate 100
+    public static let tableTextSecondary = NSColor(calibratedRed: 148/255, green: 163/255, blue: 184/255, alpha: 1.0)// Slate 400
+
     // MARK: - AppKit Styling Helpers
     public static func styleWindow(_ window: NSWindow) {
         if #available(OSX 10.14, *) {
@@ -55,6 +63,38 @@ public struct ThemeManager {
         box.borderColor = cardBorder
         box.borderWidth = 1.0
         box.cornerRadius = 10.0
+    }
+
+    public static func styleTableView(_ tableView: NSTableView) {
+        if #available(OSX 10.14, *) {
+            tableView.appearance = NSAppearance(named: .darkAqua)
+        }
+        tableView.backgroundColor = tableBackground
+        tableView.gridColor = tableGridColor
+        tableView.intercellSpacing = NSSize(width: 4, height: 4)
+
+        for column in tableView.tableColumns {
+            if let cell = column.dataCell as? NSTextFieldCell {
+                cell.textColor = tableTextPrimary
+                cell.backgroundColor = tableBackground
+                cell.drawsBackground = false
+                cell.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+            }
+            let headerCell = column.headerCell
+            headerCell.textColor = NSColor.white
+            headerCell.font = NSFont.systemFont(ofSize: 11, weight: .semibold)
+        }
+
+        if let scrollView = tableView.enclosingScrollView {
+            scrollView.drawsBackground = true
+            scrollView.backgroundColor = tableBackground
+            scrollView.contentView.drawsBackground = true
+            scrollView.contentView.backgroundColor = tableBackground
+            scrollView.borderType = .bezelBorder
+            scrollView.wantsLayer = true
+            scrollView.layer?.cornerRadius = 6.0
+            scrollView.layer?.masksToBounds = true
+        }
     }
 
     public static func stylePillBadge(_ label: NSTextField, bg: NSColor, fg: NSColor) {
@@ -95,23 +135,44 @@ public struct ThemeManager {
     public static func updateBadge(for label: NSTextField, classification: String) {
         let bg: NSColor
         let fg: NSColor
-        if classification.contains("RFC 1918") {
+        let shortText: String
+
+        if classification.contains("RFC 1918") || classification.contains("ULA") || classification.contains("Unique Local") {
             bg = rfc1918GreenBg
             fg = rfc1918GreenFg
-        } else if classification.contains("Public") {
+            shortText = (classification.contains("ULA") || classification.contains("Unique Local")) ? "ULA" : "Private"
+        } else if classification.contains("Public") || classification.contains("Global Unicast") {
             bg = publicBlueBg
             fg = publicBlueFg
+            shortText = "Public"
         } else if classification.contains("CGNAT") {
             bg = cgnatAmberBg
             fg = cgnatAmberFg
+            shortText = "CGNAT"
         } else if classification.contains("Loopback") {
             bg = loopbackCyanBg
             fg = loopbackCyanFg
+            shortText = "Loopback"
+        } else if classification.contains("Link-Local") {
+            bg = loopbackCyanBg
+            fg = loopbackCyanFg
+            shortText = "Link-Local"
+        } else if classification.contains("Multicast") {
+            bg = reservedPurpleBg
+            fg = reservedPurpleFg
+            shortText = "Multicast"
+        } else if classification.contains("This Host") {
+            bg = reservedPurpleBg
+            fg = reservedPurpleFg
+            shortText = "This Host"
         } else {
             bg = reservedPurpleBg
             fg = reservedPurpleFg
+            shortText = "Reserved"
         }
-        label.stringValue = " \(classification) "
+
+        label.stringValue = " \(shortText) "
+        label.toolTip = classification
         stylePillBadge(label, bg: bg, fg: fg)
     }
 }

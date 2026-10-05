@@ -1229,14 +1229,14 @@ CA
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box fixedFrame="YES" title="IPv6 Address" translatesAutoresizingMaskIntoConstraints="NO" id="RHa-KG-uet">
-                                            <rect key="frame" x="6" y="526" width="344" height="70"/>
+                                            <rect key="frame" x="6" y="526" width="418" height="70"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <view key="contentView" id="P9J-86-wYq">
-                                                <rect key="frame" x="3" y="3" width="338" height="50"/>
+                                                <rect key="frame" x="3" y="3" width="412" height="50"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField identifier="ipv6addrtext" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cip-g7-vbK">
-                                                        <rect key="frame" x="17" y="14" width="314" height="22"/>
+                                                        <rect key="frame" x="14" y="14" width="280" height="22"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="zaZ-l2-ZJw">
                                                             <font key="font" metaFont="system"/>
@@ -1249,14 +1249,14 @@ CA
                                             <font key="titleFont" metaFont="message"/>
                                         </box>
                                         <box fixedFrame="YES" title="IPv4 conversion" translatesAutoresizingMaskIntoConstraints="NO" id="wya-GI-9e3">
-                                            <rect key="frame" x="399" y="526" width="219" height="70"/>
+                                            <rect key="frame" x="430" y="526" width="188" height="70"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES"/>
                                             <view key="contentView" id="Awt-QT-2ZB">
-                                                <rect key="frame" x="3" y="3" width="213" height="50"/>
+                                                <rect key="frame" x="3" y="3" width="182" height="50"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField identifier="ipv4addrconvtext" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tpf-Ay-mfP">
-                                                        <rect key="frame" x="17" y="14" width="179" height="22"/>
+                                                        <rect key="frame" x="14" y="14" width="154" height="22"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="iom-7w-d2J">
                                                             <font key="font" metaFont="system"/>
@@ -1435,7 +1435,7 @@ CA
                                             <font key="titleFont" metaFont="message"/>
                                         </box>
                                         <button identifier="compactbutton" imageHugsTitle="YES" id="vhs-ST-g2o">
-                                            <rect key="frame" x="262" y="571" width="83" height="37"/>
+                                            <rect key="frame" x="345" y="571" width="75" height="24"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Short" bezelStyle="regularSquare" imagePosition="left" alignment="right" state="on" inset="2" id="5pc-E9-VGv">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
