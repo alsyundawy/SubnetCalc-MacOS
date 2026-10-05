@@ -2,9 +2,11 @@ name: Swift CI (macOS Multi-Arch)
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
+
+permissions: read-all
 
 jobs:
   build-and-test:

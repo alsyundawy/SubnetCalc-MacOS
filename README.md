@@ -114,16 +114,16 @@ In contrast to bloated web-wrapper tools that consume hundreds of megabytes of s
 
 ## Key Features & Capabilities Matrix
 
-| Capability | Technical Implementation | Benefit |
-| :--- | :--- | :--- |
-| **Native Swift & AppKit Engine** | High-performance compiled Swift 6 / 5.x utilizing Cocoa `NSView` and `NSTableView` controls. | True native macOS look and feel, sub-millisecond execution, and zero web engine bloat. |
-| **Interactive Mask Slider** | Synchronized bidirectional slider connected to mask bits, subnet counts, and host capacities. | Real-time visual exploration of subnet boundaries with instant numerical feedback. |
+| Capability                            | Technical Implementation                                                                         | Benefit                                                                                  |
+| :------------------------------------ | :----------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- |
+| **Native Swift & AppKit Engine**      | High-performance compiled Swift 6 / 5.x utilizing Cocoa `NSView` and `NSTableView` controls.     | True native macOS look and feel, sub-millisecond execution, and zero web engine bloat.   |
+| **Interactive Mask Slider**           | Synchronized bidirectional slider connected to mask bits, subnet counts, and host capacities.    | Real-time visual exploration of subnet boundaries with instant numerical feedback.       |
 | **Bit Map & Binary Octet Visualizer** | Monospaced visual mapping of network (`n`), subnet (`s`), and host (`h`) bits across all octets. | Instant visual clarity on bit-level boundaries without manual binary pencil calculation. |
-| **FLSM Subnet Partitioning** | Automated division of subnets into equal-sized blocks with dynamic tabular enumeration. | Rapid sizing of uniform departmental or branch subnets with broadcast/range boundaries. |
-| **VLSM Custom Architecture** | User-defined host requirements, subnet labeling, and tabular hierarchy generation. | Optimized IP address conservation for production WAN/LAN routing designs. |
-| **IPv6 & Transition Technologies** | RFC 4291 / RFC 3056 calculation including 6to4 translation, IPv4-mapped, and `ip6.arpa` DNS. | Seamless migration and dual-stack planning for modern IPv6 infrastructure. |
-| **Data Portability (CSV Export)** | Export subnet allocation tables directly to standard comma-separated value (CSV) files. | Quick integration with network documentation, IPAM spreadsheets, and ticketing systems. |
-| **Core Data Session History** | Apple Core Data persistence storing recent calculations with LRU rotation. | Instantly recall and compare previous network topologies across app restarts. |
+| **FLSM Subnet Partitioning**          | Automated division of subnets into equal-sized blocks with dynamic tabular enumeration.          | Rapid sizing of uniform departmental or branch subnets with broadcast/range boundaries.  |
+| **VLSM Custom Architecture**          | User-defined host requirements, subnet labeling, and tabular hierarchy generation.               | Optimized IP address conservation for production WAN/LAN routing designs.                |
+| **IPv6 & Transition Technologies**    | RFC 4291 / RFC 3056 calculation including 6to4 translation, IPv4-mapped, and `ip6.arpa` DNS.     | Seamless migration and dual-stack planning for modern IPv6 infrastructure.               |
+| **Data Portability (CSV Export)**     | Export subnet allocation tables directly to standard comma-separated value (CSV) files.          | Quick integration with network documentation, IPAM spreadsheets, and ticketing systems.  |
+| **Core Data Session History**         | Apple Core Data persistence storing recent calculations with LRU rotation.                       | Instantly recall and compare previous network topologies across app restarts.            |
 
 ---
 
@@ -168,6 +168,7 @@ lipo -info /Applications/SubnetCalc.app/Contents/MacOS/SubnetCalc
 ```
 
 Expected output:
+
 ```text
 Architectures in the fat file: /Applications/SubnetCalc.app/Contents/MacOS/SubnetCalc are: x86_64 arm64
 ```
@@ -178,12 +179,12 @@ Architectures in the fat file: /Applications/SubnetCalc.app/Contents/MacOS/Subne
 
 Pre-compiled production releases and disk images are available on the [GitHub Releases](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest) page:
 
-| Package | Format | Architecture | Compatibility | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **Universal Installer** | `.dmg` Disk Image | `Universal 2` (arm64 + x86_64) | macOS 11.0+ | **Recommended**. Drag-and-drop installer for all Macs. |
-| **Universal Bundle** | `.zip` Archive | `Universal 2` (arm64 + x86_64) | macOS 11.0+ | Standalone `.app` bundle preserving macOS metadata. |
-| **Apple Silicon Slice** | `.zip` Archive | `arm64` (M1/M2/M3/M4) | macOS 11.0+ | Lightweight build tailored strictly for Apple Silicon. |
-| **Intel Mac Slice** | `.zip` Archive | `x86_64` (Intel Macs) | macOS 11.0+ | Dedicated build tailored strictly for Intel hardware. |
+| Package                 | Format            | Architecture                   | Compatibility | Notes                                                  |
+| :---------------------- | :---------------- | :----------------------------- | :------------ | :----------------------------------------------------- |
+| **Universal Installer** | `.dmg` Disk Image | `Universal 2` (arm64 + x86_64) | macOS 11.0+   | **Recommended**. Drag-and-drop installer for all Macs. |
+| **Universal Bundle**    | `.zip` Archive    | `Universal 2` (arm64 + x86_64) | macOS 11.0+   | Standalone `.app` bundle preserving macOS metadata.    |
+| **Apple Silicon Slice** | `.zip` Archive    | `arm64` (M1/M2/M3/M4)          | macOS 11.0+   | Lightweight build tailored strictly for Apple Silicon. |
+| **Intel Mac Slice**     | `.zip` Archive    | `x86_64` (Intel Macs)          | macOS 11.0+   | Dedicated build tailored strictly for Intel hardware.  |
 
 ---
 

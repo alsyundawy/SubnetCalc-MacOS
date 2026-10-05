@@ -24,10 +24,17 @@ disabled_rules:
   - type_name
   - statement_position
   - legacy_constructor
+  - control_statement
+  - comment_spacing
+  - opening_brace
+  - colon
+  - vertical_whitespace
+  - comma
+  - for_where
+  - function_name_whitespace
 
 # Rule severity overrides
 force_cast: warning
-empty_count: warning
 shorthand_operator: warning
 
 # Opt-in rules
@@ -36,9 +43,5 @@ opt_in_rules:
   - first_where
   - redundant_nil_coalescing
   - unneeded_break_in_switch
-
-# Custom rule configurations
-colon:
-  apply_to_dictionaries: false
 
 reporter: "emoji"

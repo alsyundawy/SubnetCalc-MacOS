@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension AddrHistory {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<AddrHistory> {
