@@ -94,4 +94,4 @@ __MACOSX
 .zhistory
 .vscode/
 dist/
-
+.trunk/

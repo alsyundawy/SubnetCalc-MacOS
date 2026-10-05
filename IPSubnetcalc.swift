@@ -38,26 +38,27 @@ class IPSubnetCalc: NSObject {
         //static let addr16Hex2: UInt16 = 0x0F00
         //static let addr16Hex3: UInt16 = 0x00F0
         //static let addr16Hex4: UInt16 = 0x000F
-        static let resIPv6Blocks: [String : String] = ["::1/128" : "Loopback Address",
-                                                       "::/128" : " Unspecified Address",
-                                                       "::ffff:0:0/96" : "IPv4-mapped Address",
-                                                       "64:ff9b::/96" : "IPv4-IPv6 Translation",
-                                                       "64:ff9b:1::/48" : "IPv4-IPv6 Translation",
-                                                       "100::/64" : "Discard-Only Address Block",
-                                                       "2001::/23" : "IETF Protocol Assignments",
-                                                       "2001::/32" : "TEREDO",
-                                                       "2001:1::1/128" : "Port Control Protocol Anycast",
-                                                       "2001:1::2/128" : "Traversal Using Relays around NAT Anycast",
-                                                       "2001:2::/48" : "Benchmarking",
-                                                       "2001:3::/32" : "AMT",
-                                                       "2001:4:112::/48" : "AS112-v6",
-                                                       "2001:10::/28" : "Deprecated (previously ORCHID)",
-                                                       "2001:20::/28" : "ORCHIDv2",
-                                                       "2001:db8::/32" : "Documentation",
-                                                       "2002::/16" : "6to4",
-                                                       "2620:4f:8000::/48" : "Direct Delegation AS112 Service",
-                                                       "fc00::/7" : "Unique-Local",
-                                                       "fe80::/10" : "Link-Local Unicast"
+        static let resIPv6Blocks: [String: String] = ["::1/128": "Loopback Address",
+                                                      "::/128": "Unspecified Address",
+                                                      "::ffff:0:0/96": "IPv4-mapped Address",
+                                                      "64:ff9b::/96": "IPv4-IPv6 Translation",
+                                                      "64:ff9b:1::/48": "IPv4-IPv6 Translation",
+                                                      "100::/64": "Discard-Only Address Block",
+                                                      "2001::/23": "IETF Protocol Assignments",
+                                                      "2001::/32": "TEREDO",
+                                                      "2001:1::1/128": "Port Control Protocol Anycast",
+                                                      "2001:1::2/128": "Traversal Using Relays around NAT Anycast",
+                                                      "2001:2::/48": "Benchmarking",
+                                                      "2001:3::/32": "AMT",
+                                                      "2001:4:112::/48": "AS112-v6",
+                                                      "2001:10::/28": "Deprecated (previously ORCHID)",
+                                                      "2001:20::/28": "ORCHIDv2",
+                                                      "2001:db8::/32": "Documentation",
+                                                      "2002::/16": "6to4",
+                                                      "2620:4f:8000::/48": "Direct Delegation AS112 Service",
+                                                      "fc00::/7": "Unique-Local",
+                                                      "fe80::/10": "Link-Local Unicast",
+                                                      "ff00::/8": "Multicast (RFC 4291)"
         ]
         
         //IPv4 constants
@@ -306,16 +307,17 @@ class IPSubnetCalc: NSObject {
         if (ip4Digits.count == 4) {
             for item in ip4Digits {
                 if let digit = Int(item, radix: 10) {
-                    if (digit > 255) {
+                    if (digit < 0 || digit > 255) {
                         print("bad IPv4 digit \(digit)")
-                        throw SubnetCalcError.invalidIPv4("IPv4 digit \(digit) is greater than 255")
-                        //return false
+                        throw SubnetCalcError.invalidIPv4("IPv4 digit \(digit) must be between 0 and 255")
+                    }
+                    if item.hasPrefix("+") || item.contains(" ") {
+                        throw SubnetCalcError.invalidIPv4("IPv4 digit \(item) contains invalid characters")
                     }
                 }
                 else {
                     print("not digit: \(item)")
                     throw SubnetCalcError.invalidIPv4("not digit: \(item)")
-                    //return false
                 }
             }
         }
@@ -419,12 +421,14 @@ class IPSubnetCalc: NSObject {
      
      */
     func maxHosts() -> Int {
-        var maxHosts: UInt32 = 0
-        
+        if (self.maskBits == 31) {
+            // RFC 3021: 31-Bit Prefixes on IPv4 Point-to-Point Links (2 usable host addresses)
+            return (2)
+        }
         if (self.maskBits == 32) {
             return (0)
         }
-        maxHosts = (Constants.addr32Full >> self.maskBits) - 1
+        let maxHosts = (Constants.addr32Full >> self.maskBits) - 1
         return (Int(maxHosts))
     }
     
@@ -530,10 +534,10 @@ class IPSubnetCalc: NSObject {
         if let ipNum = IPSubnetCalc.digitize(ipAddress: ipAddress) {
         let addr1stByte = (ipNum & Constants.maskClassA) >> 24
         
-        if (addr1stByte < 127) {
+        if (addr1stByte <= 127) {
             return ("A")
         }
-        if (addr1stByte >= 127 && addr1stByte < 192) {
+        if (addr1stByte >= 128 && addr1stByte < 192) {
             return ("B")
         }
         if (addr1stByte >= 192 && addr1stByte < 224) {
@@ -926,48 +930,45 @@ class IPSubnetCalc: NSObject {
      
      */
     static func convertIPv6toIPv4(ipAddress: String) -> (String, String) {
-        var ipv4str = String()
-        //let ip4Hex = fullAddressIPv6(ipAddress: ipAddress).components(separatedBy: ":")
+        // Handle RFC 4291 section 2.5.5.2 embedded dotted IPv4 format (e.g. ::ffff:192.0.2.1)
+        if ipAddress.contains(".") {
+            if let lastColon = ipAddress.lastIndex(of: ":") {
+                let candidate = String(ipAddress[ipAddress.index(after: lastColon)...])
+                if candidate.components(separatedBy: ".").count == 4 {
+                    let method = ipAddress.hasPrefix("2002") ? "6to4" : "IPv4-Mapped"
+                    return (candidate, method)
+                }
+            }
+        }
+
         let ip4Hex = ipAddress.components(separatedBy: ":")
         let index = ip4Hex.count
-        if (ip4Hex[0] == "2002") {
-            if (index > 2) {
-                if (ip4Hex[1] == "") {
-                    ipv4str.append("0.0")
-                }
-                else {
-                    ipv4str.append(String((UInt32(ip4Hex[1], radix: 16)! & Constants.addr32Digit3) >> 8))
-                    ipv4str.append("." + String((UInt32(ip4Hex[1], radix: 16)! & Constants.addr32Digit4)))
-                }
-                if (ip4Hex[2] == "") {
-                    ipv4str.append(".0.0")
-                }
-                else {
-                    ipv4str.append("." + String((UInt32(ip4Hex[2], radix: 16)! & Constants.addr32Digit3) >> 8))
-                    ipv4str.append("." + String((UInt32(ip4Hex[2], radix: 16)! & Constants.addr32Digit4)))
-                }
+        if ip4Hex.first == "2002" {
+            var ipv4str = ""
+            if index > 2 {
+                let hex1 = UInt32(ip4Hex[1], radix: 16) ?? 0
+                let hex2 = UInt32(ip4Hex[2], radix: 16) ?? 0
+                let byte1 = (hex1 & Constants.addr32Digit3) >> 8
+                let byte2 = hex1 & Constants.addr32Digit4
+                let byte3 = (hex2 & Constants.addr32Digit3) >> 8
+                let byte4 = hex2 & Constants.addr32Digit4
+                ipv4str = "\(byte1).\(byte2).\(byte3).\(byte4)"
             }
-            return (ipv4str, "6to4")
+            return (ipv4str.isEmpty ? "0.0.0.0" : ipv4str, "6to4")
         }
         else {
-            if (index < 2) {
-                ipv4str.append("0.0")
+            var ipv4str = ""
+            if index >= 2 {
+                let hex1 = UInt32(ip4Hex[index - 2], radix: 16) ?? 0
+                let hex2 = UInt32(ip4Hex[index - 1], radix: 16) ?? 0
+                let byte1 = (hex1 & Constants.addr32Digit3) >> 8
+                let byte2 = hex1 & Constants.addr32Digit4
+                let byte3 = (hex2 & Constants.addr32Digit3) >> 8
+                let byte4 = hex2 & Constants.addr32Digit4
+                ipv4str = "\(byte1).\(byte2).\(byte3).\(byte4)"
             }
             else {
-                if (ip4Hex[index - 2] == "") {
-                    ipv4str.append("0.0")
-                }
-                else {
-                    ipv4str.append(String((UInt32(ip4Hex[index - 2], radix: 16)! & Constants.addr32Digit3) >> 8))
-                    ipv4str.append("." + String((UInt32(ip4Hex[index - 2], radix: 16)! & Constants.addr32Digit4)))
-                }
-            }
-            if (ip4Hex[index - 1] == "") {
-                ipv4str.append(".0.0")
-            }
-            else {
-                ipv4str.append("." + String((UInt32(ip4Hex[index - 1], radix: 16)! & Constants.addr32Digit3) >> 8))
-                ipv4str.append("." + String((UInt32(ip4Hex[index - 1], radix: 16)! & Constants.addr32Digit4)))
+                ipv4str = "0.0.0.0"
             }
             return (ipv4str, "IPv4-Mapped")
         }
@@ -984,47 +985,41 @@ class IPSubnetCalc: NSObject {
      */
     static func digitizeIPv6(ipAddress: String) -> [UInt16] {
         var ipAddressNum: [UInt16] = Array(repeating: 0, count: 8)
-        var ip4Hex = [String]()
-        
-        ip4Hex = IPSubnetCalc.fullAddressIPv6(ipAddress: ipAddress).components(separatedBy: ":")
-        for index in 0...(ip4Hex.count - 1) {
-            if (ip4Hex[index] == "") {
-                ip4Hex[index] = "0"
-            }
-            ipAddressNum[index] = UInt16(ip4Hex[index], radix: 16)!
-            //print("Index: \(index) Ip4Hex: \(ip4Hex[index]) Hexa : \(UInt16(ip4Hex[index], radix: 16)!)")
+        let fullAddr = IPSubnetCalc.fullAddressIPv6(ipAddress: ipAddress)
+        let ip4Hex = fullAddr.components(separatedBy: ":")
+        for index in 0..<min(8, ip4Hex.count) {
+            ipAddressNum[index] = UInt16(ip4Hex[index], radix: 16) ?? 0
         }
         return (ipAddressNum)
     }
-    
+
     /**
      Convert an IPv6 address in its binary representation
-     
+
      - Parameters:
         - ipAddress: IPv6 address in hexadecimal format
         - delimiter: add ':' to each hexa segment
-     
+
      - Returns:
      the binary representation of the given IPv6 address
      */
     static func binarizeIPv6(ipAddress: String, delimiter: Bool = false) -> String {
-        var ip4Hex: [String]
-        var binary: String
-        var binStr = String()
-        
-        ip4Hex = ipAddress.components(separatedBy: ":")
+        let fullAddr = IPSubnetCalc.fullAddressIPv6(ipAddress: ipAddress)
+        let ip4Hex = fullAddr.components(separatedBy: ":")
+        guard ip4Hex.count == 8 else { return "" }
+        var binStr = ""
         for index in 0...7 {
-            binary = String(UInt16(ip4Hex[index], radix: 16)!, radix: 2)
-            while (binary.count < 16) {
+            let val = UInt16(ip4Hex[index], radix: 16) ?? 0
+            var binary = String(val, radix: 2)
+            while binary.count < 16 {
                 binary.insert("0", at: binary.startIndex)
             }
             binStr.append(binary)
-            if (delimiter && index < 7) {
+            if delimiter && index < 7 {
                 binStr.append(":")
             }
-            //print("Index: \(index) Ip4Hex: \(ip4Hex[index]) Bin : \(binary)")
         }
-        return (binStr)
+        return binStr
     }
     
     /**
@@ -1141,78 +1136,88 @@ class IPSubnetCalc: NSObject {
             }
             fullAddr.append(ip4Hex[index])
         }
+        guard fullAddr.count == 32 else { return ipAddress }
         var offset = fullAddr.index(fullAddr.startIndex, offsetBy: 4)
         for _ in 1...7 {
             fullAddr.insert(":", at: offset)
             offset = fullAddr.index(offset, offsetBy: 5)
         }
-        return (fullAddr)
+        return fullAddr
     }
     
     /**
-     Convert a IPv6 address to its compact/short notation
+     Convert an IPv6 address to its compact/short notation conforming to RFC 5952
      
      - Parameter ipAddress: IPv6 address in hexadecimal format
      
      - Returns:
-     the compact notation of the given IPv6 address
+     the canonical compact notation of the given IPv6 address
      
      */
     static func compactAddressIPv6(ipAddress: String) -> String {
-        var shortAddr = String()
-        var ip4Hex = [String]()
-        var prevIsZero = false
-        var prevAreZero = false
-        var prevCompactZero = false
-        var prevNonZero = false
-        
-        //print("IP Address: \(ipAddress)")
-        ip4Hex = IPSubnetCalc.fullAddressIPv6(ipAddress: ipAddress).components(separatedBy: ":")
-        for index in 0...(ip4Hex.count - 1) {
-            if (UInt16(ip4Hex[index], radix: 16)! == 0) {
-                if (!prevIsZero || prevCompactZero) {
-                    if index == (ip4Hex.count - 1) {
-                        shortAddr.append("0")
-                    }
-                    else {
-                        shortAddr.append("0:")
-                    }
+        let full = IPSubnetCalc.fullAddressIPv6(ipAddress: ipAddress)
+        let quads = full.components(separatedBy: ":")
+        guard quads.count == 8 else { return ipAddress }
+
+        let words: [UInt16] = quads.compactMap { UInt16($0, radix: 16) }
+        guard words.count == 8 else { return ipAddress }
+
+        // Find longest run of consecutive zeros (RFC 5952 Section 4.2)
+        var bestStart = -1
+        var bestLen = 0
+        var curStart = -1
+        var curLen = 0
+
+        for (index, word) in words.enumerated() {
+            if word == 0 {
+                if curStart == -1 {
+                    curStart = index
+                    curLen = 1
+                } else {
+                    curLen += 1
                 }
-                else if (prevIsZero && !prevAreZero) {
-                    shortAddr.removeLast(2)
-                    prevAreZero = true
+            } else {
+                if curLen > bestLen {
+                    bestLen = curLen
+                    bestStart = curStart
                 }
-                if (prevIsZero && index == (ip4Hex.count - 1)) {
-                    if (shortAddr == "") {
-                        shortAddr.append("::")
-                    }
-                    else {
-                        shortAddr.append(":")
-                    }
-                }
-                prevIsZero = true
+                curStart = -1
+                curLen = 0
             }
-            else {
-                if (prevAreZero && !prevCompactZero) {
-                    if (!prevNonZero) {
-                        shortAddr.append("::")
-                    }
-                    else {
-                        shortAddr.append(":")
-                    }
-                    prevCompactZero = true
-                }
-                shortAddr.append(String(UInt16(ip4Hex[index], radix: 16)!, radix: 16))
-                if (index != (ip4Hex.count - 1)) {
-                    shortAddr.append(":")
-                }
-                prevIsZero = false
-                prevAreZero = false
-                prevNonZero = true
-            }
-            //print("Index : \(index) IPHex : \(ip4Hex[index]) shortAddr: \(shortAddr)")
         }
-        return (shortAddr)
+        if curLen > bestLen {
+            bestLen = curLen
+            bestStart = curStart
+        }
+
+        // RFC 5952 Section 4.2.2: The symbol "::" MUST NOT be used to shorten just one 16-bit 0 field.
+        if bestLen < 2 {
+            return words.map { String($0, radix: 16) }.joined(separator: ":")
+        }
+
+        if bestLen == 8 {
+            return "::"
+        }
+
+        var parts = [String]()
+        var idx = 0
+        while idx < 8 {
+            if idx == bestStart {
+                parts.append("")
+                idx += bestLen
+            } else {
+                parts.append(String(words[idx], radix: 16))
+                idx += 1
+            }
+        }
+
+        if bestStart == 0 {
+            return ":" + parts.joined(separator: ":")
+        } else if bestStart + bestLen == 8 {
+            return parts.joined(separator: ":") + ":"
+        } else {
+            return parts.joined(separator: ":")
+        }
     }
     
     /**
@@ -1284,38 +1289,38 @@ class IPSubnetCalc: NSObject {
      */
     func dottedDecimalIPv6() -> String {
         var ipv4str = String()
-        
+
         let ip4Hex = IPSubnetCalc.fullAddressIPv6(ipAddress: self.ipv6Address).components(separatedBy: ":")
-        for index in (0...(ip4Hex.count - 1)) {
-            if (index != 0) {
+        for index in 0..<ip4Hex.count {
+            if index != 0 {
                 ipv4str.append(".")
-                
             }
-            if (ip4Hex[index] == "") {
+            if ip4Hex[index].isEmpty {
                 ipv4str.append("0.0")
-            }
-            else {
-                ipv4str.append(String((UInt32(ip4Hex[index], radix: 16)! & Constants.addr32Digit3) >> 8))
-                ipv4str.append("." + String((UInt32(ip4Hex[index], radix: 16)! & Constants.addr32Digit4)))
+            } else {
+                let val = UInt32(ip4Hex[index], radix: 16) ?? 0
+                ipv4str.append(String((val & Constants.addr32Digit3) >> 8))
+                ipv4str.append("." + String(val & Constants.addr32Digit4))
             }
         }
         return ipv4str
     }
-    
+
     /**
      Returns IPv6 address in IP6 ARPA notation
-     
+
      - Returns:
      IPv6 address in IP6 ARPA notation of the current IPv6 address
-     
+
      */
     func ip6ARPA () -> String {
         var ipARPA = IPSubnetCalc.fullAddressIPv6(ipAddress: self.ipv6Address)
         let delimiter: Set<Character> = [":"]
-        
+
         ipARPA.removeAll(where: { delimiter.contains($0) })
+        guard ipARPA.count == 32 else { return "" }
         ipARPA = String(ipARPA.reversed())
-        
+
         var offset = ipARPA.index(ipARPA.startIndex, offsetBy: 1)
         for _ in 0...(ipARPA.count - 2) {
             ipARPA.insert(".", at: offset)

@@ -8,6 +8,7 @@
 import Foundation
 import Cocoa
 import CoreData
+import UniformTypeIdentifiers
 
 @main
 class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSTableViewDataSource {
@@ -263,6 +264,9 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             maskBitsCombo.selectItem(withObjectValue: String(ipsc!.maskBits))
             maxSubnetsCombo.selectItem(withObjectValue: String(ipsc!.maxSubnets()))
             maxHostsBySubnetCombo.selectItem(withObjectValue: String(ipsc!.maxHosts()))
+            if (maxHostsBySubnetCombo.indexOfSelectedItem == -1) {
+                maxHostsBySubnetCombo.stringValue = String(ipsc!.maxHosts())
+            }
             subnetId.stringValue = ipsc!.subnetId()
             subnetBroadcast.stringValue = ipsc!.subnetBroadcast()
             subnetHostAddrRange.stringValue = ipsc!.subnetRange()
@@ -1573,7 +1577,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     {
         if (ipsc != nil) {
             let panel = NSSavePanel()
-            panel.allowedFileTypes = ["csv"]
+            if #available(macOS 11.0, *) {
+                panel.allowedContentTypes = [.commaSeparatedText]
+            } else {
+                panel.allowedFileTypes = ["csv"]
+            }
             panel.begin(completionHandler: { (result) in
                 if (result == NSApplication.ModalResponse.OK && panel.url != nil) {
                     var fileMgt: FileManager
@@ -1621,7 +1629,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         if (ipsc != nil) {
             if (ipsc!.maskBits <= 29) {
                 let panel = NSSavePanel()
-                panel.allowedFileTypes = ["csv"]
+                if #available(macOS 11.0, *) {
+                    panel.allowedContentTypes = [.commaSeparatedText]
+                } else {
+                    panel.allowedFileTypes = ["csv"]
+                }
                 panel.begin(completionHandler: { (result) in
                     if (result == NSApplication.ModalResponse.OK && panel.url != nil) {
                         var fileMgt: FileManager
@@ -1673,7 +1685,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         if (ipsc != nil) {
             if (subnetsVLSM.count != 0) {
                 let panel = NSSavePanel()
-                panel.allowedFileTypes = ["csv"]
+                if #available(macOS 11.0, *) {
+                    panel.allowedContentTypes = [.commaSeparatedText]
+                } else {
+                    panel.allowedFileTypes = ["csv"]
+                }
                 panel.begin(completionHandler: { (result) in
                     if (result == NSApplication.ModalResponse.OK && panel.url != nil) {
                         var fileMgt: FileManager
@@ -1785,7 +1801,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     @IBAction func orderFrontStandardAboutPanel(_ sender: Any?)
     {
         let creditsString = NSMutableAttributedString()
-        
+
         let titleAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.boldSystemFont(ofSize: 11),
             .foregroundColor: NSColor.labelColor
@@ -1794,28 +1810,29 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             .font: NSFont.systemFont(ofSize: 10),
             .foregroundColor: NSColor.secondaryLabelColor
         ]
-        
+
         creditsString.append(NSAttributedString(string: "Original Creator & Lead Developer:\n", attributes: titleAttrs))
         creditsString.append(NSAttributedString(string: "Julien Mulot (https://subnetcalc.mulot.org)\n\n", attributes: bodyAttrs))
-        
+
         creditsString.append(NSAttributedString(string: "Maintenance, Modernization & Universal 2:\n", attributes: titleAttrs))
         creditsString.append(NSAttributedString(string: "Harry Dertin Sutisna Alsyundawy (@alsyundawy)\nALSYUNDAWY IT SOLUTION (https://alsyundawy.com)\n\n", attributes: bodyAttrs))
-        
+
         creditsString.append(NSAttributedString(string: "Algorithmic Reference & Oracle:\n", attributes: titleAttrs))
-        creditsString.append(NSAttributedString(string: "Dr. Thomas Dreibholz (dreibh/subnetcalc)\n", attributes: bodyAttrs))
-        
+        creditsString.append(NSAttributedString(string: "Dr. Thomas Dreibholz (dreibh/subnetcalc)\n\n", attributes: bodyAttrs))
+
+        creditsString.append(NSAttributedString(string: "Copyright:\n", attributes: titleAttrs))
+        creditsString.append(NSAttributedString(string: "Copyright © 2011-2022 Julien Mulot\nMaintained by Harry Dertin Sutisna Alsyundawy (@alsyundawy)\n", attributes: bodyAttrs))
+
         let versionStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "2.6.1"
         let buildStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "13"
-        
+
         let options: [NSApplication.AboutPanelOptionKey: Any] = [
             .credits: creditsString,
             .version: "\(versionStr) (Build \(buildStr))",
-            .applicationVersion: versionStr,
-            .copyright: "Copyright © 2011-2022 Julien Mulot\nMaintained by Harry Dertin Sutisna Alsyundawy (@alsyundawy)"
+            .applicationVersion: versionStr
         ]
         NSApp.orderFrontStandardAboutPanel(options: options)
     }
-        
     /**
      Auto invoked when the Main Windows has been resized
      */

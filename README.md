@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/alsyundawy/SubnetCalc-MacOS">
-    <img src="SubnetCalc128x128.png" width="128" height="128" alt="SubnetCalc Native macOS Application Icon">
+    <img src="logo.png" width="128" height="134" alt="SubnetCalc Native macOS Application Icon">
   </a>
 </p>
 
@@ -179,12 +179,12 @@ Architectures in the fat file: /Applications/SubnetCalc.app/Contents/MacOS/Subne
 
 Pre-compiled production releases and disk images are available on the [GitHub Releases](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest) page:
 
-| Package                 | Format            | Architecture                   | Compatibility | Notes                                                  |
-| :---------------------- | :---------------- | :----------------------------- | :------------ | :----------------------------------------------------- |
-| **Universal Installer** | `.dmg` Disk Image | `Universal 2` (arm64 + x86_64) | macOS 11.0+   | **Recommended**. Drag-and-drop installer for all Macs. |
-| **Universal Bundle**    | `.zip` Archive    | `Universal 2` (arm64 + x86_64) | macOS 11.0+   | Standalone `.app` bundle preserving macOS metadata.    |
-| **Apple Silicon Slice** | `.zip` Archive    | `arm64` (M1/M2/M3/M4)          | macOS 11.0+   | Lightweight build tailored strictly for Apple Silicon. |
-| **Intel Mac Slice**     | `.zip` Archive    | `x86_64` (Intel Macs)          | macOS 11.0+   | Dedicated build tailored strictly for Intel hardware.  |
+| Package                 | Format            | Architecture                   | Compatibility           | Notes                                                  |
+| :---------------------- | :---------------- | :----------------------------- | :---------------------- | :----------------------------------------------------- |
+| **Universal Installer** | `.dmg` Disk Image | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) | **Recommended**. Drag-and-drop installer for all Macs. |
+| **Universal Bundle**    | `.zip` Archive    | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) | Standalone `.app` bundle preserving macOS metadata.    |
+| **Apple Silicon Slice** | `.zip` Archive    | `arm64` (M1/M2/M3/M4)          | macOS 11.0+             | Lightweight build tailored strictly for Apple Silicon. |
+| **Intel Mac Slice**     | `.zip` Archive    | `x86_64` (Intel Macs)          | macOS 10.15+ (Catalina) | Dedicated build tailored strictly for Intel hardware.  |
 
 ---
 
