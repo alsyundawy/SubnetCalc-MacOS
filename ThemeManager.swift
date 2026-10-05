@@ -71,24 +71,23 @@ public struct ThemeManager {
     }
 
     public static func formatColorCodedBitMap(_ bitPattern: String) -> NSAttributedString {
-        let result = NSMutableAttributedString()
+        let baseFont = NSFont.monospacedSystemFont(ofSize: 13, weight: .bold)
+        let result = NSMutableAttributedString(string: bitPattern, attributes: [
+            .font: baseFont,
+            .foregroundColor: NSColor.white
+        ])
+        var currentIndex = 0
         for char in bitPattern {
-            var color = NSColor.white
-            if char == "n" {
-                color = networkBitColor
-            } else if char == "s" {
-                color = subnetBitColor
-            } else if char == "h" {
-                color = hostBitColor
-            } else if char == "." {
-                color = separatorBitColor
+            let color: NSColor
+            switch char {
+            case "n": color = networkBitColor
+            case "s": color = subnetBitColor
+            case "h": color = hostBitColor
+            case ".": color = separatorBitColor
+            default:  color = NSColor.white
             }
-
-            let attrs: [NSAttributedString.Key: Any] = [
-                .foregroundColor: color,
-                .font: NSFont.monospacedSystemFont(ofSize: 13, weight: .bold)
-            ]
-            result.append(NSAttributedString(string: String(char), attributes: attrs))
+            result.addAttribute(.foregroundColor, value: color, range: NSRange(location: currentIndex, length: 1))
+            currentIndex += 1
         }
         return result
     }

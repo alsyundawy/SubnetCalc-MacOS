@@ -40,6 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced non-standard semicolon `;` in CSV export outputs with standard RFC 4180 comma delimiters.
 - Completely preserved the exact 6-tab architecture (`IPv4`, `Subnets/Hosts`, `CIDR`, `FLSM`, `VLSM`, `IPv6`) with zero breaking changes to existing calculations.
 
+### Fixed & Hardened (13-Pillar Production Code Review)
+
+- **Prefix Bounds & Integer Overflow Guard**: Added strict `prefix >= 1 && prefix <= minimumPrefix` bounds checking to `usableRange` and `reservedRoles`, eliminating integer bitwise shift traps on invalid inputs.
+- **Defensive Unwrapping**: Replaced all remaining force-unwraps (`!`) with safe `guard let` and optional chaining across `subnetRange`, `subnetCIDRRange`, `netClass`, VLSM host solvers (`doVLSM`, `addVLSM`), CSV file handles, and CoreData history persistence.
+- **Enhanced CWE-1236 Formula Injection Defense**: Hardened CSV sanitization to cover tab (`\t`) and carriage return (`\r`) in addition to `=`, `+`, `-`, and `@`.
+- **Memory & Rendering Optimization**: Re-engineered `ThemeManager.formatColorCodedBitMap` to use in-place attribute mutations on a single `NSMutableAttributedString`, eliminating 35 intermediate object allocations per keystroke.
+- **RFC 1122 Compliance**: Added explicit classification for `0.0.0.0/8` ("RFC 1122 This Host on This Network").
+- **Legacy Codebase Maintenance**: Initialized unassigned `subnetsTable` instance variable in `PrintView.m`.
+
 ---
 
 ## [v2.6.1] - 2026-10-05

@@ -16,6 +16,7 @@
 	NSRect				frame;
 	NSSize				paperSize;
 	
+    subnetsTable = table;
     entryPerPage = 30;
 	pages = [subnetsTable numberOfRows] / entryPerPage;
 	if (([subnetsTable numberOfRows] % entryPerPage) != 0)

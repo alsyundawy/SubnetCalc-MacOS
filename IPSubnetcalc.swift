@@ -487,26 +487,29 @@ class IPSubnetCalc: NSObject {
 
      */
     func subnetRange() -> String {
-        var range = String()
-        var firstIP: UInt32 = 0
-        var lastIP: UInt32 = 0
-
-        if (maskBits == 31 || maskBits == 32) {
-            firstIP = IPSubnetCalc.digitize(ipAddress: subnetId())!
-            lastIP = IPSubnetCalc.digitize(ipAddress: subnetBroadcast())!
+        guard let first = IPSubnetCalc.digitize(ipAddress: subnetId()),
+              let last = IPSubnetCalc.digitize(ipAddress: subnetBroadcast()) else {
+            return ""
         }
-        else {
-            firstIP = IPSubnetCalc.digitize(ipAddress: subnetId())! + 1
-            lastIP = IPSubnetCalc.digitize(ipAddress: subnetBroadcast())! - 1
+        let firstIP: UInt32
+        let lastIP: UInt32
+        if maskBits == 31 || maskBits == 32 {
+            firstIP = first
+            lastIP = last
+        } else {
+            firstIP = first + 1
+            lastIP = (last > 0) ? last - 1 : 0
         }
-        range = IPSubnetCalc.dottedDecimal(ipAddress: firstIP) + " - " + IPSubnetCalc.dottedDecimal(ipAddress: lastIP)
-        return (range)
+        return "\(IPSubnetCalc.dottedDecimal(ipAddress: firstIP)) - \(IPSubnetCalc.dottedDecimal(ipAddress: lastIP))"
     }
 
     /**
      Returns the usable host range according to the selected Cloud Provider reservation profile
      */
     func subnetRange(profile: CloudProfile) -> String {
+        if maskBits > profile.minimumPrefix {
+            return "Prohibited by \(profile.rawValue) (Minimum: /\(profile.minimumPrefix))"
+        }
         guard let net = IPSubnetCalc.digitize(ipAddress: subnetId()),
               let usable = profile.usableRange(network: net, prefix: maskBits) else {
             return subnetRange()
@@ -518,6 +521,9 @@ class IPSubnetCalc: NSObject {
      Returns the count of usable hosts under the selected Cloud Provider reservation profile
      */
     func maxHosts(profile: CloudProfile) -> String {
+        if maskBits > profile.minimumPrefix {
+            return "0 (Prohibited)"
+        }
         guard let net = IPSubnetCalc.digitize(ipAddress: subnetId()),
               let usable = profile.usableRange(network: net, prefix: maskBits) else {
             return String(maxHosts())
@@ -533,14 +539,11 @@ class IPSubnetCalc: NSObject {
 
      */
     func subnetCIDRRange() -> String {
-        var range = String()
-        var firstIP: UInt32 = 0
-        var lastIP: UInt32 = 0
-
-        firstIP = IPSubnetCalc.digitize(ipAddress: subnetId())!
-        lastIP = IPSubnetCalc.digitize(ipAddress: subnetBroadcast())!
-        range = IPSubnetCalc.dottedDecimal(ipAddress: firstIP) + " - " + IPSubnetCalc.dottedDecimal(ipAddress: lastIP)
-        return (range)
+        guard let first = IPSubnetCalc.digitize(ipAddress: subnetId()),
+              let last = IPSubnetCalc.digitize(ipAddress: subnetBroadcast()) else {
+            return ""
+        }
+        return "\(IPSubnetCalc.dottedDecimal(ipAddress: first)) - \(IPSubnetCalc.dottedDecimal(ipAddress: last))"
     }
 
     /**
@@ -581,7 +584,7 @@ class IPSubnetCalc: NSObject {
 
      */
     func netClass() -> String {
-        return (IPSubnetCalc.netClass(ipAddress: ipv4Address)!)
+        return IPSubnetCalc.netClass(ipAddress: ipv4Address) ?? "C"
     }
 
     /**
@@ -1515,7 +1518,7 @@ public enum CloudProfile: String, CaseIterable, Codable {
     }
 
     public func usableRange(network: UInt32, prefix: Int) -> UsableHostRange? {
-        guard prefix <= self.minimumPrefix else { return nil }
+        guard prefix >= 1 && prefix <= self.minimumPrefix else { return nil }
         let totalHosts: UInt32 = (prefix == 32) ? 1 : UInt32(1 << (32 - prefix))
         let broadcast = network + totalHosts - 1
 
@@ -1540,7 +1543,7 @@ public enum CloudProfile: String, CaseIterable, Codable {
     }
 
     public func reservedRoles(network: UInt32, prefix: Int) -> [(ip: UInt32, role: String)] {
-        guard prefix <= self.minimumPrefix else { return [] }
+        guard prefix >= 1 && prefix <= self.minimumPrefix else { return [] }
         let totalHosts: UInt32 = (prefix == 32) ? 1 : UInt32(1 << (32 - prefix))
         let broadcast = network + totalHosts - 1
 
@@ -1613,6 +1616,9 @@ extension IPSubnetCalc {
         let b1 = (num >> 24) & 0xFF
         let b2 = (num >> 16) & 0xFF
 
+        if b1 == 0 {
+            return "RFC 1122 This Host on This Network"
+        }
         if b1 == 10 {
             return "RFC 1918 Private (Class A)"
         }
@@ -1649,7 +1655,7 @@ public struct DataPortability {
      */
     public static func sanitizeFormulaInjection(_ text: String) -> String {
         guard let firstChar = text.first else { return text }
-        if ["=", "+", "-", "@"].contains(firstChar) {
+        if ["=", "+", "-", "@", "\t", "\r"].contains(firstChar) {
             return "'" + text
         }
         return text

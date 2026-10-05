@@ -105,8 +105,8 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     //*******************
     private var ipsc: IPSubnetCalc?
     private var subnetsVLSM = [(Int, String, String)]()
-    private var globalMaskVLSM: UInt32!
-    private var container: NSPersistentContainer!
+    private var globalMaskVLSM: UInt32 = 0
+    private var container: NSPersistentContainer?
     private var history = [AddrHistory]()
 
     //**********************
@@ -341,21 +341,21 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     private func doVLSM()
     {
-        if (ipsc != nil) {
-            //print("doVLSM")
-            maskBitsVLSMCombo.selectItem(withObjectValue: String(ipsc!.maskBits))
-            var maskVLSM = ~IPSubnetCalc.digitize(maskbits: ipsc!.maskBits)! + 1
-            if (subnetsVLSM.count != 0) {
+        if let ipsc = ipsc {
+            maskBitsVLSMCombo.selectItem(withObjectValue: String(ipsc.maskBits))
+            guard let baseMask = IPSubnetCalc.digitize(maskbits: ipsc.maskBits) else { return }
+            var maskVLSM = ~baseMask + 1
+            if !subnetsVLSM.isEmpty {
                 var fitsRequirements = true
-                for index in (0...(subnetsVLSM.count - 1)) {
+                for index in 0..<subnetsVLSM.count {
                     let maskbits = subnetsVLSM[index].0
-                    //print("Mask VLSM: \(IPSubnetCalc.digitize(ipAddress: maskVLSM)) Maskbits: \(IPSubnetCalc.digitize(ipAddress: ~IPSubnetCalc.numerize(maskbits: maskbits)))")
-                    if (maskVLSM > ~IPSubnetCalc.digitize(maskbits: maskbits)!) {
-                        maskVLSM = maskVLSM - (~IPSubnetCalc.digitize(maskbits: maskbits)! + 1)
-                        //print("Mask AFTER VLSM: \(IPSubnetCalc.digitize(ipAddress: maskVLSM))")
-                    }
-                    else {
-                        fitsRequirements = false
+                    if let curMask = IPSubnetCalc.digitize(maskbits: maskbits) {
+                        let invCur = ~curMask
+                        if maskVLSM > invCur {
+                            maskVLSM = maskVLSM - (invCur + 1)
+                        } else {
+                            fitsRequirements = false
+                        }
                     }
                 }
                 if (fitsRequirements) {
@@ -564,6 +564,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      Save the address IP field history for future App sessions
      */
     private func saveHistory() {
+        guard let container = container else { return }
         if container.viewContext.hasChanges {
             do {
                 try container.viewContext.save()
@@ -577,17 +578,16 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      Load in the address IP field the history of previous App sessions
      */
     private func loadHistory() {
-        container = NSPersistentContainer(name: "SubnetCalc")
-        container.loadPersistentStores { storeDescription, error in
+        let ct = NSPersistentContainer(name: "SubnetCalc")
+        ct.loadPersistentStores { _, error in
             if let error = error {
                 print("Unresolved error \(error)")
             }
         }
+        self.container = ct
         do {
-            history = try container.viewContext.fetch(AddrHistory.fetchRequest())
-            //print("Got \(history.count) items")
+            history = try ct.viewContext.fetch(AddrHistory.fetchRequest())
             for item in history {
-                //print(item.address)
                 addrField.addItem(withObjectValue: item.address)
             }
         } catch {
@@ -1348,36 +1348,35 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 used = (requiredHostsVLSM.integerValue * 100) / Int(hosts)
                 //print("VLSM fitting subnet mask: \(maskbits) with \(hosts) max hosts")
                 if (subnetsVLSM.count != 0) {
-                    //print("VLSM subnets NOT empty")
-                    //print("Mask VLSM: \(IPSubnetCalc.digitize(ipAddress: globalMaskVLSM)) Maskbits: \(IPSubnetCalc.digitize(ipAddress: ~IPSubnetCalc.numerize(maskbits: maskbits)))")
-                    if (globalMaskVLSM > ~IPSubnetCalc.digitize(maskbits: maskbits)!) {
-                        globalMaskVLSM = globalMaskVLSM - (~IPSubnetCalc.digitize(maskbits: maskbits)! + 1)
-                        //print("Mask AFTER VLSM: \(IPSubnetCalc.digitize(ipAddress: globalMaskVLSM))")
-                        if let index = subnetsVLSM.firstIndex(where: { $0.0 > maskbits }) {
-                            subnetsVLSM.insert((maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"), at: index)
+                    if let maskNum = IPSubnetCalc.digitize(maskbits: maskbits) {
+                        let invMask = ~maskNum
+                        if (globalMaskVLSM > invMask) {
+                            globalMaskVLSM = globalMaskVLSM - (invMask + 1)
+                            if let index = subnetsVLSM.firstIndex(where: { $0.0 > maskbits }) {
+                                subnetsVLSM.insert((maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"), at: index)
+                            }
+                            else {
+                                subnetsVLSM.append((maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"))
+                            }
                         }
                         else {
-                            subnetsVLSM.append((maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"))
+                            myAlert(message: "No space for Hosts requirement", info: "\(requiredHostsVLSM.integerValue) hosts require /\(maskbits) Mask bits")
                         }
-                        //subnetsVLSM.append(("dsds", maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"))
-                    }
-                    else {
-                        myAlert(message: "No space for Hosts requirement", info: "\(requiredHostsVLSM.integerValue) hosts require /\(maskbits) Mask bits")
                     }
                 }
                 else {
-                    //print("VLSM subnets empty")
-                    globalMaskVLSM = ~IPSubnetCalc.digitize(maskbits: ipsc!.maskBits)! + 1
-                    //print("Mask VLSM: \(IPSubnetCalc.digitize(ipAddress: globalMaskVLSM)) Maskbits: \(IPSubnetCalc.digitize(ipAddress: ~IPSubnetCalc.numerize(maskbits: maskbits)))")
-                    if (globalMaskVLSM > ~IPSubnetCalc.digitize(maskbits: maskbits)!) {
-                        globalMaskVLSM = globalMaskVLSM - (~IPSubnetCalc.digitize(maskbits: maskbits)! + 1)
-                        //print("Mask AFTER VLSM: \(IPSubnetCalc.digitize(ipAddress: globalMaskVLSM))")
-                        subnetsVLSM.append((maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"))
+                    if let ipscMask = IPSubnetCalc.digitize(maskbits: ipsc!.maskBits),
+                       let maskNum = IPSubnetCalc.digitize(maskbits: maskbits) {
+                        globalMaskVLSM = ~ipscMask + 1
+                        let invMask = ~maskNum
+                        if (globalMaskVLSM > invMask) {
+                            globalMaskVLSM = globalMaskVLSM - (invMask + 1)
+                            subnetsVLSM.append((maskbits, subnetNameVLSM.stringValue, "\(requiredHostsVLSM.stringValue)/\(hosts) (\(used)%)"))
+                        }
+                        else {
+                            myAlert(message: "No space for Hosts requirement", info: "\(requiredHostsVLSM.integerValue) hosts require /\(maskbits) Mask bits")
+                        }
                     }
-                    else {
-                        myAlert(message: "No space for Hosts requirement", info: "\(requiredHostsVLSM.integerValue) hosts require /\(maskbits) Mask bits")
-                    }
-
                 }
                 viewVLSM.reloadData()
             }
@@ -1612,26 +1611,27 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     @IBAction func ipAddrEdit(_ sender: AnyObject)
     {
-        //print("ipAddrEdit action")
-        if ((sender as? NSTextField)?.stringValue) != nil {
-            if (sender.stringValue != "") {
+        if let textField = sender as? NSTextField {
+            let addr = textField.stringValue
+            if !addr.isEmpty {
                 do {
-                    let addr = sender.stringValue!
                     try self.doCalc()
                     if (addrField.indexOfItem(withObjectValue: addr) == NSNotFound) {
                         if (addrField.numberOfItems >= Constants.maxAddrHistory) {
                             addrField.removeItem(at: 0)
-                            if (history.count > 0) {
-                                container.viewContext.delete(history[0])
+                            if (history.count > 0 && container != nil) {
+                                container!.viewContext.delete(history[0])
                                 history.remove(at: 0)
                                 saveHistory()
                             }
                         }
                         addrField.addItem(withObjectValue: addr)
-                        let historyItem = AddrHistory(context: container.viewContext)
-                        historyItem.address = addr
-                        history.append(historyItem)
-                        saveHistory()
+                        if let container = container {
+                            let historyItem = AddrHistory(context: container.viewContext)
+                            historyItem.address = addr
+                            history.append(historyItem)
+                            saveHistory()
+                        }
                     }
                 }
                 catch {}
@@ -1665,23 +1665,26 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                         // Fallback on earlier versions
                         fileMgt = FileManager.default
                     }
-                    fileMgt.createFile(atPath: panel.url!.path, contents: nil, attributes: nil)
-                    let cvsFile = FileHandle(forWritingAtPath: panel.url!.path)
-                    if (cvsFile != nil) {
-                        var rows: [[String]] = []
-                        for index in (0...(self.ipsc!.maxSubnets() - 1)) {
-                            let mask: UInt32 = UInt32(index) << (32 - self.ipsc!.maskBits)
-                            let ipaddr = (IPSubnetCalc.digitize(ipAddress: self.ipsc!.subnetId())!) | mask
-                            let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: self.ipsc!.maskBits)
-                            if (ipsc_tmp != nil) {
-                                rows.append(["\(index + 1)", ipsc_tmp!.subnetId(), ipsc_tmp!.subnetRange(profile: self.currentCloudProfile), ipsc_tmp!.subnetBroadcast()])
+                    if let path = panel.url?.path {
+                        fileMgt.createFile(atPath: path, contents: nil, attributes: nil)
+                        if let cvsFile = FileHandle(forWritingAtPath: path),
+                           let ipsc = self.ipsc,
+                           let baseNet = IPSubnetCalc.digitize(ipAddress: ipsc.subnetId()) {
+                            var rows: [[String]] = []
+                            let maxSubs = ipsc.maxSubnets()
+                            for index in 0..<maxSubs {
+                                let mask: UInt32 = UInt32(index) << (32 - ipsc.maskBits)
+                                let ipaddr = baseNet | mask
+                                if let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: ipsc.maskBits) {
+                                    rows.append(["\(index + 1)", ipsc_tmp.subnetId(), ipsc_tmp.subnetRange(profile: self.currentCloudProfile), ipsc_tmp.subnetBroadcast()])
+                                }
                             }
-                        }
-                        let csvStr = DataPortability.exportSafeCSV(headers: ["#", "Subnet ID", "Range", "Broadcast"], rows: rows)
-                        if let data = csvStr.data(using: .utf8) {
-                            cvsFile!.write(data)
-                            cvsFile!.synchronizeFile()
-                            cvsFile!.closeFile()
+                            let csvStr = DataPortability.exportSafeCSV(headers: ["#", "Subnet ID", "Range", "Broadcast"], rows: rows)
+                            if let data = csvStr.data(using: .utf8) {
+                                cvsFile.write(data)
+                                cvsFile.synchronizeFile()
+                                cvsFile.closeFile()
+                            }
                         }
                     }
                 }
@@ -1717,26 +1720,30 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                             // Fallback on earlier versions
                             fileMgt = FileManager.default
                         }
-                        fileMgt.createFile(atPath: panel.url!.path, contents: nil, attributes: nil)
-                        let cvsFile = FileHandle(forWritingAtPath: panel.url!.path)
-                        if (cvsFile != nil) {
+                    if let path = panel.url?.path {
+                        fileMgt.createFile(atPath: path, contents: nil, attributes: nil)
+                        if let cvsFile = FileHandle(forWritingAtPath: path),
+                           let ipsc = self.ipsc,
+                           let ipNum = IPSubnetCalc.digitize(ipAddress: ipsc.ipv4Address),
+                           let maskNum = IPSubnetCalc.digitize(maskbits: ipsc.maskBits) {
                             var rows: [[String]] = []
-                            let subnetid: UInt32 = ((IPSubnetCalc.digitize(ipAddress: self.ipsc!.ipv4Address)! & IPSubnetCalc.digitize(maskbits: self.ipsc!.maskBits)!) >> (32 - self.ipsc!.maskBits)) << (32 - self.ipsc!.maskBits)
+                            let subnetid: UInt32 = ((ipNum & maskNum) >> (32 - ipsc.maskBits)) << (32 - ipsc.maskBits)
                             let count = Int(truncating: NSDecimalNumber(decimal: pow(2, self.slideFLSM.integerValue)))
                             for index in 0..<count {
-                                let ipaddr = (subnetid >> (32 - (self.ipsc!.maskBits + self.slideFLSM.integerValue)) + UInt32(index)) << (32 - (self.ipsc!.maskBits + self.slideFLSM.integerValue))
-                                let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: (self.ipsc!.maskBits + self.slideFLSM.integerValue))
-                                if (ipsc_tmp != nil) {
-                                    rows.append(["\(index + 1)", ipsc_tmp!.subnetId(), "\(self.ipsc!.maskBits + self.slideFLSM.integerValue)", ipsc_tmp!.subnetRange(profile: self.currentCloudProfile), ipsc_tmp!.subnetBroadcast()])
+                                let shift = 32 - (ipsc.maskBits + self.slideFLSM.integerValue)
+                                let ipaddr = ((subnetid >> shift) + UInt32(index)) << shift
+                                if let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: (ipsc.maskBits + self.slideFLSM.integerValue)) {
+                                    rows.append(["\(index + 1)", ipsc_tmp.subnetId(), "\(ipsc.maskBits + self.slideFLSM.integerValue)", ipsc_tmp.subnetRange(profile: self.currentCloudProfile), ipsc_tmp.subnetBroadcast()])
                                 }
                             }
                             let csvStr = DataPortability.exportSafeCSV(headers: ["#", "Subnet ID", "Mask bits", "Range", "Broadcast"], rows: rows)
                             if let data = csvStr.data(using: .utf8) {
-                                cvsFile!.write(data)
-                                cvsFile!.synchronizeFile()
-                                cvsFile!.closeFile()
+                                cvsFile.write(data)
+                                cvsFile.synchronizeFile()
+                                cvsFile.closeFile()
                             }
                         }
+                    }
                     }
                 }
                 )
@@ -1774,28 +1781,33 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                             // Fallback on earlier versions
                             fileMgt = FileManager.default
                         }
-                        fileMgt.createFile(atPath: panel.url!.path, contents: nil, attributes: nil)
-                        let cvsFile = FileHandle(forWritingAtPath: panel.url!.path)
-                        if (cvsFile != nil) {
+                    if let path = panel.url?.path {
+                        fileMgt.createFile(atPath: path, contents: nil, attributes: nil)
+                        if let cvsFile = FileHandle(forWritingAtPath: path),
+                           let ipsc = self.ipsc,
+                           let subnetid = IPSubnetCalc.digitize(ipAddress: ipsc.subnetId()) {
                             var rows: [[String]] = []
-                            let subnetid = IPSubnetCalc.digitize(ipAddress: self.ipsc!.subnetId())!
-                            for index in (0...(self.subnetsVLSM.count - 1)) {
+                            for index in 0..<self.subnetsVLSM.count {
                                 var subnet = subnetid
-                                if (index > 0) {
-                                    for index2 in (0...(index - 1)) {
-                                        subnet = subnet + ~IPSubnetCalc.digitize(maskbits: self.subnetsVLSM[index2].0)! + 1
+                                if index > 0 {
+                                    for index2 in 0..<index {
+                                        if let mNum = IPSubnetCalc.digitize(maskbits: self.subnetsVLSM[index2].0) {
+                                            subnet = subnet + ~mNum + 1
+                                        }
                                     }
                                 }
-                                let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: self.subnetsVLSM[index].0)!
-                                rows.append(["\(index + 1)", self.subnetsVLSM[index].1, ipsc_tmp.subnetId(), "\(self.subnetsVLSM[index].0)", ipsc_tmp.subnetRange(), ipsc_tmp.subnetBroadcast(), self.subnetsVLSM[index].2])
+                                if let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: self.subnetsVLSM[index].0) {
+                                    rows.append(["\(index + 1)", self.subnetsVLSM[index].1, ipsc_tmp.subnetId(), "\(self.subnetsVLSM[index].0)", ipsc_tmp.subnetRange(profile: self.currentCloudProfile), ipsc_tmp.subnetBroadcast(), self.subnetsVLSM[index].2])
+                                }
                             }
                             let csvStr = DataPortability.exportSafeCSV(headers: ["#", "Subnet Name", "Subnet ID", "Mask bits", "Hosts Range", "Broadcast", "Used"], rows: rows)
                             if let data = csvStr.data(using: .utf8) {
-                                cvsFile!.write(data)
-                                cvsFile!.synchronizeFile()
-                                cvsFile!.closeFile()
+                                cvsFile.write(data)
+                                cvsFile.synchronizeFile()
+                                cvsFile.closeFile()
                             }
                         }
+                    }
                     }
                 }
                 )
@@ -1860,8 +1872,10 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     @IBAction func clearHistory(_ sender: AnyObject)
     {
         addrField.removeAllItems()
-        for item in history {
-            container.viewContext.delete(item)
+        if let container = container {
+            for item in history {
+                container.viewContext.delete(item)
+            }
         }
         history.removeAll()
         saveHistory()
