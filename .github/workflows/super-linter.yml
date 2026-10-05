@@ -39,6 +39,7 @@ jobs:
           VALIDATE_GIT_DIFF: true
 
           # Configuration file mappings
+          LINTER_RULES_PATH: .
           SWIFT_CONFIG_FILE: .swiftlint.yml
           MARKDOWN_CONFIG_FILE: .markdownlint.json
           YAML_CONFIG_FILE: .yamllint.yml
