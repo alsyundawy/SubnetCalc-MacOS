@@ -189,25 +189,33 @@ In conformance with Google Engineering Practices, OWASP Top 10 2025, and CWE Top
 
 ---
 
-## 6. UI/UX Professional Layout Refinements & Zero-Brown Theme Architecture
+## 6. UI/UX Professional Layout Refinements, Swift-Themes Standard Palettes & Zero-Brown Theme Architecture
 
-Following empirical visual validation and user design feedback on v2.6.2:
+Following empirical visual validation, user design feedback, and integration of [`ActuallyTaylor/Swift-Themes`](https://github.com/ActuallyTaylor/Swift-Themes) on v2.6.2:
 
-1. **Eradication of Muddy Brown Table Backgrounds**:
-   - In macOS Dark Aqua appearance, system default `controlBackgroundColor` resolves to a warm sepia dark gray. When contrasted against our deep midnight navy background (`#080c16` / `#0f172a`), it produced an unappealing brown tint.
-   - Re-engineered all `NSTableView` instances (`subnetsHostsView`, `viewFLSM`, `viewVLSM`) and enclosing `NSScrollView`/`NSClipView` using custom tokens `ThemeManager.tableBackground` (`#0f172a`), `ThemeManager.tableRowAlt` (`#141e37`), and `ThemeManager.tableGridColor` (`rgba(255,255,255,0.08)`).
-   - Implemented `NSTableViewDelegate.tableView(_:willDisplayCell:for:row:)` ensuring every data cell renders alternating sleek dark rows with crisp `#f1f5f9` text and zero sepia tint.
+1. **`Swift-Themes` Architectural Palette Integration (`ThemeManager.swift`)**:
+   - Integrated the color architecture from `ActuallyTaylor/Swift-Themes` with native AppKit `BridgeColor = NSColor` alias and `NSColor(hex:alpha:)` hex scanner.
+   - Built full palette structures for **Catppuccin Mocha** (`base: #1e1e2e`, `mantle: #181825`, `crust: #11111b`, `surface0: #313244`, `surface1: #45475a`, `text: #cdd6f4`, `subtext0: #a6adc8`, `sapphire: #74c7ec`, `mauve: #cba6f7`, `green: #a6e3a1`, `teal: #94e2d5`, `peach: #fab387`, `red: #f38ba8`), **Dracula** (`#282a36`, `#f8f8f2`), and **Tomorrow Night Blue** (`#002451`).
+   - Mapped all design tokens to `CatppuccinMocha`, giving the application a cohesive, developer-grade aesthetic that completely replaces the system default sepia brown tint.
 
-2. **Resolution of IPv6 ULA Button Overlap & Symmetrical Geometry**:
+2. **Eradication of Muddy Brown Table Backgrounds & Selection Highlight Polish**:
+   - In macOS Dark Aqua appearance, system default `controlBackgroundColor` resolves to a warm sepia dark gray. Contrasted against deep midnight navy backgrounds, it produced an unappealing brown tint.
+   - Re-engineered all `NSTableView` instances (`subnetsHostsView`, `viewFLSM`, `viewVLSM`) and enclosing `NSScrollView`/`NSClipView` using `SwiftThemes.CatppuccinMocha` tokens: `tableBackground` (`#1e1e2e`), `tableRowAlt` (`#181825`), and `tableGridColor` (`rgba(255,255,255,0.05)`).
+   - Implemented `NSTableViewDelegate.tableView(_:willDisplayCell:for:row:)` ensuring every data cell renders alternating sleek dark rows with crisp `#cdd6f4` text.
+   - Polished row selection state: when a row is selected (`isRowSelected(row)`), `drawsBackground` is disabled and text is set to pure `#ffffff`, allowing the macOS native selection highlight to shine through with high contrast.
+
+3. **Resolution of IPv6 ULA Button Overlap & Symmetrical Geometry**:
    - Relocated the "Generate ULA" button from the box border (`x: 10, y: 576` which previously collided with the box header label "IPv6 Address") to directly inside the IPv6 Address card adjacent to the address field (`x: 300, y: 11, width: 106, height: 26`).
    - Repositioned the "Short" checkbox to `x: 345, y: 571`, establishing 250px of clean whitespace separation from the "IPv6 Address" title.
    - Symmetrically widened the "IPv6 Address" box to 418px and narrowed "IPv4 conversion" to 188px with 6px uniform padding on both margins.
 
-3. **Standard Default Form Inputs (`/24` IPv4 and `/64` IPv6)**:
+4. **Standard Default Form Inputs (`/24` IPv4 and `/64` IPv6) & Tab View Delegation**:
    - Configured initial form inputs across all tabs (`IPv4`, `Subnets/Hosts`, `FLSM`, `VLSM`) to default to standard classless `/24` (`255.255.255.0`) instead of legacy Class A `/8`.
    - Initialized `IPv6` mask bits to standard `/64`.
    - Populated `addrField` on launch with `10.0.0.0/24` and automatically performed initial calculation, presenting a fully populated, modern dark UI immediately on application start.
+   - Implemented `NSTabViewDelegate.tabView(_:didSelect:)`: when switching to the IPv6 tab, if the field is not already an IPv6 address, it smoothly defaults to `2001:db8::/64` and calculates; when switching back to IPv4 tabs, if the field is IPv6, it defaults to `10.0.0.0/24` and calculates, without overriding custom user inputs.
+   - Synchronized `addrField.stringValue` on every calculation to canonical CIDR format (`IP/mask`), ensuring history records and address displays always retain unambiguous CIDR prefix lengths.
 
-4. **Intelligent IPv6 RFC Classification**:
+5. **Intelligent IPv6 RFC Classification**:
    - Expanded `IPSubnetCalc` with `classifyIPv6Address` identifying RFC 4193 ULA (`fc00::/7`), RFC 4291 Link-Local (`fe80::/10`), Loopback (`::1`), Multicast (`ff00::/8`), Documentation (`2001:db8::/32`), and Global Unicast.
    - Upgraded status pill badges to display concise labels (`ULA`, `Private`, `Public`, `CGNAT`, `Loopback`, `Link-Local`, `Multicast`, `Reserved`) with full RFC descriptions in interactive tooltips, resolving the previous bug where IPv6 ULA addresses defaulted to "Public".

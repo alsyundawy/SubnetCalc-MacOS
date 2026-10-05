@@ -11,7 +11,7 @@ import CoreData
 import UniformTypeIdentifiers
 
 @main
-class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate {
+class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate, NSTabViewDelegate {
     //*******************
     //Private Constants
     //*******************
@@ -524,6 +524,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 ipsc = IPSubnetCalc(ipAddress: ipaddr, maskbits: Int(Constants.defaultIPv4Mask) ?? 24)
             }
             if (ipsc != nil) {
+                addrField.stringValue = "\(ipsc!.ipv4Address)/\(ipsc!.maskBits)"
                 self.doAddressMap()
                 self.doSubnet()
                 self.doSubnetHost()
@@ -713,6 +714,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             //print("IP Address: \(ipaddr) mask: \(ipmask)")
             ipsc = IPSubnetCalc(ipv6: ipaddr, maskbits: maskVal)
             if (ipsc != nil) {
+                addrField.stringValue = "\(ipsc!.ipv6Address)/\(ipsc!.ipv6MaskBits)"
                 self.doAddressMap()
                 self.doSubnet()
                 self.doSubnetHost()
@@ -1268,10 +1270,36 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     func tableView(_ tableView: NSTableView, willDisplayCell cell: Any, for tableColumn: NSTableColumn?, row: Int) {
         if let textCell = cell as? NSTextFieldCell {
-            textCell.textColor = ThemeManager.tableTextPrimary
-            textCell.backgroundColor = (row % 2 == 0) ? ThemeManager.tableBackground : ThemeManager.tableRowAlt
-            textCell.drawsBackground = true
+            let isSelected = tableView.isRowSelected(row)
+            if isSelected {
+                textCell.textColor = NSColor.white
+                textCell.drawsBackground = false
+            } else {
+                textCell.textColor = ThemeManager.tableTextPrimary
+                textCell.backgroundColor = (row % 2 == 0) ? ThemeManager.tableBackground : ThemeManager.tableRowAlt
+                textCell.drawsBackground = true
+            }
             textCell.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+        }
+    }
+
+    // MARK: - NSTabViewDelegate
+    /**
+     Auto invoked when user switches tabs. Ensures default inputs (/24 for IPv4, /64 for IPv6)
+     are populated smoothly without overwriting custom user inputs.
+     */
+    func tabView(_ tabView: NSTabView, didSelect tabViewItem: NSTabViewItem?) {
+        guard let item = tabViewItem else { return }
+        if item.label == "IPv6" {
+            if !addrField.stringValue.contains(":") {
+                addrField.stringValue = "2001:db8::/\(Constants.defaultIPv6Mask)"
+                try? doIPv6SubnetCalc()
+            }
+        } else {
+            if addrField.stringValue.contains(":") {
+                addrField.stringValue = "\(Constants.defaultIP)/\(Constants.defaultIPv4Mask)"
+                try? doIPSubnetCalc()
+            }
         }
     }
 
@@ -2001,7 +2029,8 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             }
         }
 
-        // 4. Setup Tables with Sleek Modern Dark Styling (Eradicate Brown Backgrounds)
+        // 4. Setup Tables & Tab View with Sleek Modern Dark Styling (Swift-Themes Catppuccin Mocha)
+        tabView.delegate = self
         subnetsHostsView.delegate = self
         viewFLSM.delegate = self
         viewVLSM.delegate = self

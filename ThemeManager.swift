@@ -3,50 +3,133 @@
 //  SubnetCalc
 //
 //  Modern Dark Theme Design Tokens & Appearance Helpers
-//  Inspired by Visual Subnet Calculator & KusumaVision NMS V2
+//  Color palettes derived from ActuallyTaylor/Swift-Themes
+//  (Catppuccin Mocha, Dracula, Tomorrow Night Blue)
 //
 
 import Cocoa
 
+#if canImport(AppKit)
+public typealias BridgeColor = NSColor
+#endif
+
+// MARK: - Hex Color Extension (ActuallyTaylor/Swift-Themes Pattern)
+public extension NSColor {
+    convenience init(hex: String, alpha: CGFloat = 1.0) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+        var rgb: UInt64 = 0
+        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else {
+            self.init(calibratedRed: 0, green: 0, blue: 0, alpha: alpha)
+            return
+        }
+        let length = hexSanitized.count
+        if length == 6 {
+            let r = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
+            let g = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
+            let b = CGFloat(rgb & 0x0000FF) / 255.0
+            self.init(calibratedRed: r, green: g, blue: b, alpha: alpha)
+        } else if length == 8 {
+            let r = CGFloat((rgb & 0xFF000000) >> 24) / 255.0
+            let g = CGFloat((rgb & 0x00FF0000) >> 16) / 255.0
+            let b = CGFloat((rgb & 0x0000FF00) >> 8) / 255.0
+            let a = CGFloat(rgb & 0x000000FF) / 255.0
+            self.init(calibratedRed: r, green: g, blue: b, alpha: a)
+        } else {
+            self.init(calibratedRed: 0, green: 0, blue: 0, alpha: alpha)
+        }
+    }
+}
+
+// MARK: - SwiftThemes Standard Palettes (https://github.com/ActuallyTaylor/Swift-Themes)
+public struct SwiftThemes {
+    public struct CatppuccinMocha {
+        public static let base = NSColor(hex: "#1e1e2e")
+        public static let mantle = NSColor(hex: "#181825")
+        public static let crust = NSColor(hex: "#11111b")
+        public static let surface0 = NSColor(hex: "#313244")
+        public static let surface1 = NSColor(hex: "#45475a")
+        public static let surface2 = NSColor(hex: "#585b70")
+        public static let overlay0 = NSColor(hex: "#6c7086")
+        public static let text = NSColor(hex: "#cdd6f4")
+        public static let subtext0 = NSColor(hex: "#a6adc8")
+        public static let subtext1 = NSColor(hex: "#bac2de")
+        public static let sapphire = NSColor(hex: "#74c7ec")
+        public static let blue = NSColor(hex: "#89b4fa")
+        public static let green = NSColor(hex: "#a6e3a1")
+        public static let teal = NSColor(hex: "#94e2d5")
+        public static let peach = NSColor(hex: "#fab387")
+        public static let mauve = NSColor(hex: "#cba6f7")
+        public static let red = NSColor(hex: "#f38ba8")
+        public static let yellow = NSColor(hex: "#f9e2af")
+    }
+
+    public struct Dracula {
+        public static let background = NSColor(hex: "#282a36")
+        public static let currentLine = NSColor(hex: "#44475a")
+        public static let foreground = NSColor(hex: "#f8f8f2")
+        public static let comment = NSColor(hex: "#6272a4")
+        public static let cyan = NSColor(hex: "#8be9fd")
+        public static let green = NSColor(hex: "#50fa7b")
+        public static let orange = NSColor(hex: "#ffb86c")
+        public static let pink = NSColor(hex: "#ff79c6")
+        public static let purple = NSColor(hex: "#bd93f9")
+        public static let red = NSColor(hex: "#ff5555")
+        public static let yellow = NSColor(hex: "#f1fa8c")
+    }
+
+    public struct TomorrowNightBlue {
+        public static let background = NSColor(hex: "#002451")
+        public static let currentLine = NSColor(hex: "#00346e")
+        public static let foreground = NSColor(hex: "#ffffff")
+        public static let selection = NSColor(hex: "#003f8e")
+        public static let comment = NSColor(hex: "#7285b7")
+        public static let blue = NSColor(hex: "#bbdaff")
+        public static let green = NSColor(hex: "#d1f1a9")
+        public static let orange = NSColor(hex: "#ffc58f")
+        public static let purple = NSColor(hex: "#ebbbff")
+    }
+}
+
 public struct ThemeManager {
-    // MARK: - Canvas & Card Backgrounds
-    public static let midnightBackground = NSColor(calibratedRed: 8/255, green: 12/255, blue: 22/255, alpha: 1.0)
-    public static let cardBackground = NSColor(calibratedRed: 15/255, green: 23/255, blue: 42/255, alpha: 0.90)
-    public static let cardBorder = NSColor(calibratedWhite: 1.0, alpha: 0.08)
+    // MARK: - Canvas & Card Backgrounds (Anchored to Swift-Themes Catppuccin Mocha)
+    public static let midnightBackground = SwiftThemes.CatppuccinMocha.crust
+    public static let cardBackground = SwiftThemes.CatppuccinMocha.base
+    public static let cardBorder = SwiftThemes.CatppuccinMocha.surface0
 
     // MARK: - Vibrant Accents
-    public static let accentCyan = NSColor(calibratedRed: 0/255, green: 229/255, blue: 255/255, alpha: 1.0)
-    public static let accentBlue = NSColor(calibratedRed: 2/255, green: 132/255, blue: 199/255, alpha: 1.0)
+    public static let accentCyan = SwiftThemes.CatppuccinMocha.sapphire
+    public static let accentBlue = SwiftThemes.CatppuccinMocha.blue
 
     // MARK: - Bit Visualizer Semantic Colors
-    public static let networkBitColor = NSColor(calibratedRed: 0/255, green: 229/255, blue: 255/255, alpha: 1.0) // Neon Cyan (n)
-    public static let subnetBitColor = NSColor(calibratedRed: 168/255, green: 85/255, blue: 247/255, alpha: 1.0) // Royal Purple (s)
-    public static let hostBitColor = NSColor(calibratedRed: 16/255, green: 185/255, blue: 129/255, alpha: 1.0)   // Emerald Green (h)
-    public static let separatorBitColor = NSColor(calibratedWhite: 0.45, alpha: 1.0)                              // Muted Dot (.)
+    public static let networkBitColor = SwiftThemes.CatppuccinMocha.sapphire // Sapphire Cyan (n)
+    public static let subnetBitColor = SwiftThemes.CatppuccinMocha.mauve     // Mauve Purple (s)
+    public static let hostBitColor = SwiftThemes.CatppuccinMocha.green       // Emerald Green (h)
+    public static let separatorBitColor = SwiftThemes.CatppuccinMocha.overlay0 // Muted Dot (.)
 
     // MARK: - Dynamic Status Badges (Pills)
-    public static let rfc1918GreenBg = NSColor(calibratedRed: 6/255, green: 95/255, blue: 70/255, alpha: 0.85)
-    public static let rfc1918GreenFg = NSColor(calibratedRed: 52/255, green: 211/255, blue: 153/255, alpha: 1.0)
+    public static let rfc1918GreenBg = NSColor(calibratedRed: 26/255, green: 56/255, blue: 45/255, alpha: 0.90)
+    public static let rfc1918GreenFg = SwiftThemes.CatppuccinMocha.green
 
-    public static let publicBlueBg = NSColor(calibratedRed: 30/255, green: 58/255, blue: 138/255, alpha: 0.85)
-    public static let publicBlueFg = NSColor(calibratedRed: 56/255, green: 189/255, blue: 248/255, alpha: 1.0)
+    public static let publicBlueBg = NSColor(calibratedRed: 28/255, green: 45/255, blue: 82/255, alpha: 0.90)
+    public static let publicBlueFg = SwiftThemes.CatppuccinMocha.blue
 
-    public static let cgnatAmberBg = NSColor(calibratedRed: 120/255, green: 53/255, blue: 15/255, alpha: 0.85)
-    public static let cgnatAmberFg = NSColor(calibratedRed: 251/255, green: 191/255, blue: 36/255, alpha: 1.0)
+    public static let cgnatAmberBg = NSColor(calibratedRed: 74/255, green: 44/255, blue: 23/255, alpha: 0.90)
+    public static let cgnatAmberFg = SwiftThemes.CatppuccinMocha.peach
 
-    public static let loopbackCyanBg = NSColor(calibratedRed: 19/255, green: 78/255, blue: 74/255, alpha: 0.85)
-    public static let loopbackCyanFg = NSColor(calibratedRed: 45/255, green: 212/255, blue: 191/255, alpha: 1.0)
+    public static let loopbackCyanBg = NSColor(calibratedRed: 22/255, green: 58/255, blue: 64/255, alpha: 0.90)
+    public static let loopbackCyanFg = SwiftThemes.CatppuccinMocha.teal
 
-    public static let reservedPurpleBg = NSColor(calibratedRed: 88/255, green: 28/255, blue: 135/255, alpha: 0.85)
-    public static let reservedPurpleFg = NSColor(calibratedRed: 192/255, green: 132/255, blue: 252/255, alpha: 1.0)
+    public static let reservedPurpleBg = NSColor(calibratedRed: 53/255, green: 32/255, blue: 74/255, alpha: 0.90)
+    public static let reservedPurpleFg = SwiftThemes.CatppuccinMocha.mauve
 
-    // MARK: - Table View Design Tokens (Deep Navy / Sleek Slate - Zero Brown)
-    public static let tableBackground = NSColor(calibratedRed: 15/255, green: 23/255, blue: 42/255, alpha: 1.0)     // #0f172a
-    public static let tableRowAlt = NSColor(calibratedRed: 20/255, green: 30/255, blue: 55/255, alpha: 1.0)         // #141e37
-    public static let tableGridColor = NSColor(calibratedWhite: 1.0, alpha: 0.08)
-    public static let tableHeaderColor = NSColor(calibratedRed: 30/255, green: 41/255, blue: 59/255, alpha: 1.0)    // #1e293b
-    public static let tableTextPrimary = NSColor(calibratedRed: 241/255, green: 245/255, blue: 249/255, alpha: 1.0) // Slate 100
-    public static let tableTextSecondary = NSColor(calibratedRed: 148/255, green: 163/255, blue: 184/255, alpha: 1.0)// Slate 400
+    // MARK: - Table View Design Tokens (SwiftThemes Catppuccin Mocha - Zero Brown)
+    public static let tableBackground = SwiftThemes.CatppuccinMocha.base         // #1e1e2e
+    public static let tableRowAlt = SwiftThemes.CatppuccinMocha.mantle           // #181825
+    public static let tableGridColor = NSColor(calibratedWhite: 1.0, alpha: 0.05)
+    public static let tableHeaderColor = SwiftThemes.CatppuccinMocha.surface1    // #45475a
+    public static let tableTextPrimary = SwiftThemes.CatppuccinMocha.text        // #cdd6f4
+    public static let tableTextSecondary = SwiftThemes.CatppuccinMocha.subtext0  // #a6adc8
 
     // MARK: - AppKit Styling Helpers
     public static func styleWindow(_ window: NSWindow) {
@@ -57,12 +140,14 @@ public struct ThemeManager {
     }
 
     public static func styleCard(_ box: NSBox) {
-        box.boxType = .custom
-        box.isTransparent = false
-        box.fillColor = cardBackground
-        box.borderColor = cardBorder
-        box.borderWidth = 1.0
-        box.cornerRadius = 10.0
+        if box.titlePosition == .noTitle {
+            box.boxType = .custom
+            box.isTransparent = false
+            box.fillColor = cardBackground
+            box.borderColor = cardBorder
+            box.borderWidth = 1.0
+            box.cornerRadius = 8.0
+        }
     }
 
     public static func styleTableView(_ tableView: NSTableView) {
