@@ -71,26 +71,45 @@ jobs:
 
       - name: Package Applications (DMG & ZIPs)
         run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" build/Release/SubnetCalc.app/Contents/Info.plist 2>/dev/null || echo "2.6.1")
+          echo "Packaging SubnetCalc release artifacts for version: ${VERSION}"
+
           # Package Universal DMG
           hdiutil create -volname "SubnetCalc" \
             -srcfolder build/Release/SubnetCalc.app \
             -ov -format UDZO \
-            dist/SubnetCalc-Universal.dmg
+            "dist/SubnetCalc-${VERSION}-Universal.dmg"
 
-          # Package Universal ZIP
+          # Package Apple Silicon (arm64) DMG
+          hdiutil create -volname "SubnetCalc" \
+            -srcfolder build/Release/SubnetCalc-arm64.app \
+            -ov -format UDZO \
+            "dist/SubnetCalc-${VERSION}-arm64.dmg"
+
+          # Package Intel (x64) DMG
+          hdiutil create -volname "SubnetCalc" \
+            -srcfolder build/Release/SubnetCalc-x86_64.app \
+            -ov -format UDZO \
+            "dist/SubnetCalc-${VERSION}-x64.dmg"
+
+          # Duplicate with v-prefix and legacy alias for universal access
+          cp "dist/SubnetCalc-${VERSION}-Universal.dmg" "dist/SubnetCalc-v${VERSION}-Universal.dmg"
+          cp "dist/SubnetCalc-${VERSION}-arm64.dmg" "dist/SubnetCalc-v${VERSION}-arm64.dmg"
+          cp "dist/SubnetCalc-${VERSION}-x64.dmg" "dist/SubnetCalc-v${VERSION}-x64.dmg"
+          cp "dist/SubnetCalc-${VERSION}-Universal.dmg" "dist/SubnetCalc-Universal.dmg"
+
+          # Package ZIPs
           ditto -c -k --sequesterRsrc --keepParent \
             build/Release/SubnetCalc.app \
-            dist/SubnetCalc-macOS-Universal.zip
+            "dist/SubnetCalc-${VERSION}-Universal.zip"
 
-          # Package Apple Silicon (arm64) ZIP
           ditto -c -k --sequesterRsrc --keepParent \
             build/Release/SubnetCalc-arm64.app \
-            dist/SubnetCalc-macOS-arm64.zip
+            "dist/SubnetCalc-${VERSION}-arm64.zip"
 
-          # Package Intel (x86_64) ZIP
           ditto -c -k --sequesterRsrc --keepParent \
             build/Release/SubnetCalc-x86_64.app \
-            dist/SubnetCalc-macOS-x86_64.zip
+            "dist/SubnetCalc-${VERSION}-x64.zip"
 
       - name: Generate Cryptographic SHA-256 Checksums
         run: |
@@ -112,9 +131,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/SubnetCalc-Universal.dmg
-            dist/SubnetCalc-macOS-Universal.zip
-            dist/SubnetCalc-macOS-arm64.zip
-            dist/SubnetCalc-macOS-x86_64.zip
+            dist/*.dmg
+            dist/*.zip
             dist/SHA256SUMS.txt
           generate_release_notes: true
