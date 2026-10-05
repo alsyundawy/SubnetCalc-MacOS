@@ -92,12 +92,6 @@ jobs:
             -ov -format UDZO \
             "dist/SubnetCalc-${VERSION}-x64.dmg"
 
-          # Duplicate with v-prefix and legacy alias for universal access
-          cp "dist/SubnetCalc-${VERSION}-Universal.dmg" "dist/SubnetCalc-v${VERSION}-Universal.dmg"
-          cp "dist/SubnetCalc-${VERSION}-arm64.dmg" "dist/SubnetCalc-v${VERSION}-arm64.dmg"
-          cp "dist/SubnetCalc-${VERSION}-x64.dmg" "dist/SubnetCalc-v${VERSION}-x64.dmg"
-          cp "dist/SubnetCalc-${VERSION}-Universal.dmg" "dist/SubnetCalc-Universal.dmg"
-
           # Package ZIPs
           ditto -c -k --sequesterRsrc --keepParent \
             build/Release/SubnetCalc.app \

@@ -148,10 +148,9 @@ Version 2.6.1 introduces three dedicated GitHub Actions automation pipelines:
 - Extracts architecture-specific slices (`arm64` and `x86_64`).
 - Ad-hoc signs all bundles using `codesign --force --deep --sign -`.
 - Packages distribution assets:
-  - `SubnetCalc-Universal.dmg` (compressed UDZO disk image via `hdiutil`)
-  - `SubnetCalc-macOS-Universal.zip` (via `ditto --sequesterRsrc --keepParent`)
-  - `SubnetCalc-macOS-arm64.zip`
-  - `SubnetCalc-macOS-x86_64.zip`
+  - `SubnetCalc-${VERSION}-Universal.dmg` / `.zip` (Universal 2 binary for arm64 + x86_64)
+  - `SubnetCalc-${VERSION}-arm64.dmg` / `.zip` (Apple Silicon native)
+  - `SubnetCalc-${VERSION}-x64.dmg` / `.zip` (Intel x86_64 native)
   - `SHA256SUMS.txt` cryptographic checksums
 - Automatically creates and publishes a GitHub Release when tags (`v*`) are pushed.
 
