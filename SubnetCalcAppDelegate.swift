@@ -1769,14 +1769,51 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     @IBAction func clearHistory(_ sender: AnyObject)
     {
-        for _ in (0...addrField.numberOfItems-1) {
-            addrField.removeItem(at: 0)
+        addrField.removeAllItems()
+        for item in history {
+            container.viewContext.delete(item)
         }
-        for _ in (0...history.count-1) {
-            container.viewContext.delete(history[0])
-            history.remove(at: 0)
-            saveHistory()
-        }
+        history.removeAll()
+        saveHistory()
+    }
+
+    /**
+     Display custom About Panel with developer and upstream credits
+     
+     - Parameter sender: invoking menu item
+     */
+    @IBAction func orderFrontStandardAboutPanel(_ sender: Any?)
+    {
+        let creditsString = NSMutableAttributedString()
+        
+        let titleAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.boldSystemFont(ofSize: 11),
+            .foregroundColor: NSColor.labelColor
+        ]
+        let bodyAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 10),
+            .foregroundColor: NSColor.secondaryLabelColor
+        ]
+        
+        creditsString.append(NSAttributedString(string: "Original Creator & Lead Developer:\n", attributes: titleAttrs))
+        creditsString.append(NSAttributedString(string: "Julien Mulot (https://subnetcalc.mulot.org)\n\n", attributes: bodyAttrs))
+        
+        creditsString.append(NSAttributedString(string: "Maintenance, Modernization & Universal 2:\n", attributes: titleAttrs))
+        creditsString.append(NSAttributedString(string: "Harry Dertin Sutisna Alsyundawy (@alsyundawy)\nALSYUNDAWY IT SOLUTION (https://alsyundawy.com)\n\n", attributes: bodyAttrs))
+        
+        creditsString.append(NSAttributedString(string: "Algorithmic Reference & Oracle:\n", attributes: titleAttrs))
+        creditsString.append(NSAttributedString(string: "Dr. Thomas Dreibholz (dreibh/subnetcalc)\n", attributes: bodyAttrs))
+        
+        let versionStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "2.6.1"
+        let buildStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "13"
+        
+        let options: [NSApplication.AboutPanelOptionKey: Any] = [
+            .credits: creditsString,
+            .version: "\(versionStr) (Build \(buildStr))",
+            .applicationVersion: versionStr,
+            .copyright: "Copyright © 2011-2022 Julien Mulot\nMaintained by Harry Dertin Sutisna Alsyundawy (@alsyundawy)"
+        ]
+        NSApp.orderFrontStandardAboutPanel(options: options)
     }
         
     /**

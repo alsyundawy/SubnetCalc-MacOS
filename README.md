@@ -48,7 +48,8 @@
 > **[`HARRY DERTIN SUTISNA ALSYUNDAWY (@alsyundawy)`](https://github.com/alsyundawy)** — [`ALSYUNDAWY IT SOLUTION`](https://alsyundawy.com)<br>
 >
 > 🍏 **[`Latest Releases (v2.6.1)`](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest)** &nbsp;|&nbsp;
-> 📜 **[`Changelog`](#changelog-v261)** &nbsp;|&nbsp;
+> 📖 **[`Release DocNotes (DOCNOTE.md)`](DOCNOTE.md)** &nbsp;|&nbsp;
+> 📜 **[`Changelog (CHANGELOG.md)`](CHANGELOG.md)** &nbsp;|&nbsp;
 > 🐛 **[`Issue Tracker`](https://github.com/alsyundawy/SubnetCalc-MacOS/issues)** &nbsp;|&nbsp;
 > 💖 **[`Support via PayPal`](https://www.paypal.me/alsyundawy)** &nbsp;|&nbsp;
 > ☕ **[`Buy Me A Coffee (Original Author)`](https://www.buymeacoffee.com/0TC98Sk)**
@@ -84,7 +85,8 @@
 - [Downloads & Artifact Catalogs](#downloads--artifact-catalogs)
 - [macOS Gatekeeper & Quarantine Removal](#macos-gatekeeper--quarantine-removal)
 - [Developer Setup, Building & CI Verification](#developer-setup-building--ci-verification)
-- [Changelog (v2.6.1)](#changelog-v261)
+- [Release DocNotes (DOCNOTE.md)](DOCNOTE.md)
+- [Changelog (CHANGELOG.md)](CHANGELOG.md)
 - [Upstream Credits & Attribution](#upstream-credits--attribution)
 - [FAQ & Troubleshooting](#faq--troubleshooting)
 - [📬 Maintainer & Contact](#-maintainer--contact)
