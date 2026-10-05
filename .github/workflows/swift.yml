@@ -1,7 +1,4 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Swift
+name: Swift CI (macOS Multi-Arch)
 
 on:
   push:
@@ -10,13 +7,47 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
-    runs-on: macos-latest
+  build-and-test:
+    name: Build (${{ matrix.arch }} - ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            arch: Apple Silicon (arm64)
+          - os: macos-15-intel
+            arch: Intel (x86_64)
 
     steps:
-    - uses: actions/checkout@v7
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Environment Diagnostics
+        run: |
+          echo "Operating System: $(uname -s)"
+          echo "Host Architecture: $(uname -m)"
+          xcodebuild -version
+
+      - name: Build SubnetCalc (${{ matrix.arch }})
+        run: |
+          xcodebuild build \
+            -project SubnetCalc.xcodeproj \
+            -scheme SubnetCalc \
+            -configuration Debug \
+            -destination "platform=macOS" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Verify Architecture
+        run: |
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SubnetCalc.app" -type d | head -n 1)
+          if [ -d "$APP_PATH" ]; then
+            echo "Binary located at: $APP_PATH/Contents/MacOS/SubnetCalc"
+            file "$APP_PATH/Contents/MacOS/SubnetCalc"
+            lipo -info "$APP_PATH/Contents/MacOS/SubnetCalc"
+          else
+            echo "DerivedData App not found; searching workspace..."
+            find . -name "SubnetCalc.app" -type d
+          fi

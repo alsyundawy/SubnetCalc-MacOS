@@ -92,4 +92,6 @@ iOSInjectionProject/
 __MACOSX
 .DS_Store
 .zhistory
+.vscode/
+dist/
 

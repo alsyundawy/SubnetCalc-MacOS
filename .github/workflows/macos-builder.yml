@@ -1,0 +1,124 @@
+name: macOS Builder & Release (Universal 2 - Intel & Apple Silicon)
+
+on:
+  push:
+    branches: [ "master" ]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Create a GitHub Release draft with artifacts"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-universal-release:
+    name: Build & Package Universal App (Intel & ARM64)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Environment Diagnostics
+        run: |
+          echo "Host Runner: $(uname -s) $(uname -m)"
+          xcodebuild -version
+
+      - name: Build Universal 2 Binary (arm64 & x86_64)
+        run: |
+          mkdir -p build/Release dist
+          xcodebuild build \
+            -project SubnetCalc.xcodeproj \
+            -scheme SubnetCalc \
+            -configuration Release \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CONFIGURATION_BUILD_DIR="$PWD/build/Release" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Verify Universal Binary with Lipo
+        run: |
+          BINARY_PATH="build/Release/SubnetCalc.app/Contents/MacOS/SubnetCalc"
+          if [ ! -f "$BINARY_PATH" ]; then
+            echo "Error: Binary not found at $BINARY_PATH"
+            exit 1
+          fi
+          echo "=== File Type ==="
+          file "$BINARY_PATH"
+          echo "=== Lipo Info ==="
+          lipo -info "$BINARY_PATH"
+
+      - name: Create Separate Architecture Slices (Universal, ARM64, Intel)
+        run: |
+          # 1. Prepare ARM64-only Slice
+          cp -R build/Release/SubnetCalc.app build/Release/SubnetCalc-arm64.app
+          lipo build/Release/SubnetCalc.app/Contents/MacOS/SubnetCalc -thin arm64 -output build/Release/SubnetCalc-arm64.app/Contents/MacOS/SubnetCalc
+          codesign --force --deep --sign - build/Release/SubnetCalc-arm64.app
+
+          # 2. Prepare Intel (x86_64)-only Slice
+          cp -R build/Release/SubnetCalc.app build/Release/SubnetCalc-x86_64.app
+          lipo build/Release/SubnetCalc.app/Contents/MacOS/SubnetCalc -thin x86_64 -output build/Release/SubnetCalc-x86_64.app/Contents/MacOS/SubnetCalc
+          codesign --force --deep --sign - build/Release/SubnetCalc-x86_64.app
+
+          # 3. Ad-hoc sign Universal App
+          codesign --force --deep --sign - build/Release/SubnetCalc.app
+
+      - name: Package Applications (DMG & ZIPs)
+        run: |
+          # Package Universal DMG
+          hdiutil create -volname "SubnetCalc" \
+            -srcfolder build/Release/SubnetCalc.app \
+            -ov -format UDZO \
+            dist/SubnetCalc-Universal.dmg
+
+          # Package Universal ZIP
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Release/SubnetCalc.app \
+            dist/SubnetCalc-macOS-Universal.zip
+
+          # Package Apple Silicon (arm64) ZIP
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Release/SubnetCalc-arm64.app \
+            dist/SubnetCalc-macOS-arm64.zip
+
+          # Package Intel (x86_64) ZIP
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Release/SubnetCalc-x86_64.app \
+            dist/SubnetCalc-macOS-x86_64.zip
+
+      - name: Generate Cryptographic SHA-256 Checksums
+        run: |
+          cd dist
+          shasum -a 256 * > SHA256SUMS.txt
+          echo "=== SHA-256 Checksums ==="
+          cat SHA256SUMS.txt
+          cd ..
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SubnetCalc-macOS-Builds
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/SubnetCalc-Universal.dmg
+            dist/SubnetCalc-macOS-Universal.zip
+            dist/SubnetCalc-macOS-arm64.zip
+            dist/SubnetCalc-macOS-x86_64.zip
+            dist/SHA256SUMS.txt
+          generate_release_notes: true
