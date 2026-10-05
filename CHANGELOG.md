@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **RFC 4291 Reserved Blocks**: Corrected typographic leading space in `Constants.resIPv6Blocks` for `::/128` ("Unspecified Address") and added RFC 4291 Multicast prefix `ff00::/8`.
 - **IPv6 Runtime Crash Protection**:
   - Hardened `binarizeIPv6`, `digitizeIPv6`, `dottedDecimalIPv6`, `ip6ARPA`, and `fullAddressIPv6` against force unwraps, non-8-quad inputs, and string slicing bounds errors.
+  - Mitigated potential force-unwrap crashes in `doIPSubnetCalc` and `doIPv6SubnetCalc` by implementing safe optional bindings (`if let`) when parsing custom IPv6 transition masks (`Int(ipmask)`).
 - **macOS Catalina (10.15) Minimum Deployment Target**:
   - Elevated project and test targets `MACOSX_DEPLOYMENT_TARGET` from legacy `10.12` to `10.15` (macOS Catalina), eliminating Xcode deployment target warnings while guaranteeing native compatibility across Intel and Apple Silicon Macs running macOS Catalina through Sequoia.
 - **VS Code & Antigravity IDE SwiftLint Extension Configuration**:

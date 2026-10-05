@@ -437,9 +437,9 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 if (ipsc != nil) {
                     ipaddr = ipsc!.ipv4Address
                 }
-                if (ipmask != nil) {
-                    if (Int(ipmask!)! >= (Constants.defaultIPv6to4Mask + 8)) {
-                        ipmask = String(Int(ipmask!)! - Constants.defaultIPv6to4Mask)
+                if let maskStr = ipmask, let maskVal = Int(maskStr) {
+                    if (maskVal >= (Constants.defaultIPv6to4Mask + 8)) {
+                        ipmask = String(maskVal - Constants.defaultIPv6to4Mask)
                     }
                     else {
                         ipmask = "8"
@@ -455,11 +455,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         do {
             try IPSubnetCalc.validateIPv4(ipAddress: ipaddr, mask: ipmask)
             //print("IP Address: \(ipaddr) mask: \(ipmask)")
-            if (ipmask == nil) {
-                ipsc = IPSubnetCalc(ipaddr)
+            if let maskStr = ipmask, let maskVal = Int(maskStr) {
+                ipsc = IPSubnetCalc(ipAddress: ipaddr, maskbits: maskVal)
             }
             else {
-                ipsc = IPSubnetCalc(ipAddress: ipaddr, maskbits: Int(ipmask!)!)
+                ipsc = IPSubnetCalc(ipaddr)
             }
             if (ipsc != nil) {
                 self.doAddressMap()
@@ -640,14 +640,15 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
                 ipmask = Constants.defaultIPv6Mask
             }
         }
-        else if (Int(ipmask!) == nil) {
-            myAlert(message: "Invalid IPv6 mask", info: "\(ipmask!) is not an integer")
+        else if let maskStr = ipmask, Int(maskStr) == nil {
+            myAlert(message: "Invalid IPv6 mask", info: "\(maskStr) is not an integer")
             return
         }
         do {
-            try IPSubnetCalc.validateIPv6(ipAddress: ipaddr, mask: Int(ipmask!))
+            let maskVal = ipmask != nil ? Int(ipmask!)! : Int(Constants.defaultIPv6Mask)!
+            try IPSubnetCalc.validateIPv6(ipAddress: ipaddr, mask: maskVal)
             //print("IP Address: \(ipaddr) mask: \(ipmask)")
-            ipsc = IPSubnetCalc(ipv6: ipaddr, maskbits: Int(ipmask!)!)
+            ipsc = IPSubnetCalc(ipv6: ipaddr, maskbits: maskVal)
             if (ipsc != nil) {
                 self.doAddressMap()
                 self.doSubnet()
