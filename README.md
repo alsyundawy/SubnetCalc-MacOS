@@ -11,7 +11,7 @@
 <h3 align="center">High-Performance, Native Swift & Cocoa IPv4 & IPv6 Subnet Calculator for macOS (Universal 2: Apple Silicon & Intel)</h3>
 
 <p align="center">
-  <a href="https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest"><img src="https://img.shields.io/badge/Release-v2.6-2ea44f?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release v2.6"></a>
+  <a href="https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest"><img src="https://img.shields.io/badge/Release-v2.6.1-2ea44f?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release v2.6.1"></a>
   <a href="https://apple.com/macos"><img src="https://img.shields.io/badge/Platform-macOS%20Sequoia%20%7C%20Sonoma%20%7C%20Ventura-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Platform"></a>
   <a href="https://developer.apple.com/swift/"><img src="https://img.shields.io/badge/Language-Swift%206%20%2F%205.x-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift Language"></a>
   <a href="https://developer.apple.com/documentation/appkit"><img src="https://img.shields.io/badge/Framework-Native%20AppKit%20Cocoa-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="AppKit Cocoa"></a>
@@ -26,7 +26,7 @@
 
 <p align="center">
   <a href="#downloads--artifact-catalogs">
-    <img src="https://img.shields.io/badge/🚀_Download_Artifacts-v2.6-238636?style=for-the-badge&logo=cloudsmith&logoColor=white" alt="Download Artifacts">
+    <img src="https://img.shields.io/badge/🚀_Download_Artifacts-v2.6.1-238636?style=for-the-badge&logo=cloudsmith&logoColor=white" alt="Download Artifacts">
   </a>
   <a href="https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest">
     <img src="https://img.shields.io/badge/🪞_Releases_&_Changelog-GitHub-0284c7?style=for-the-badge&logo=github&logoColor=white" alt="Releases & Changelog">
@@ -47,8 +47,8 @@
 > Maintained, modernized, and CI/CD automated by<br>
 > **[`HARRY DERTIN SUTISNA ALSYUNDAWY (@alsyundawy)`](https://github.com/alsyundawy)** — [`ALSYUNDAWY IT SOLUTION`](https://alsyundawy.com)<br>
 >
-> 🍏 **[`Latest Releases (v2.6)`](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest)** &nbsp;|&nbsp;
-> 📜 **[`Changelog`](#changelog-v26)** &nbsp;|&nbsp;
+> 🍏 **[`Latest Releases (v2.6.1)`](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest)** &nbsp;|&nbsp;
+> 📜 **[`Changelog`](#changelog-v261)** &nbsp;|&nbsp;
 > 🐛 **[`Issue Tracker`](https://github.com/alsyundawy/SubnetCalc-MacOS/issues)** &nbsp;|&nbsp;
 > 💖 **[`Support via PayPal`](https://www.paypal.me/alsyundawy)** &nbsp;|&nbsp;
 > ☕ **[`Buy Me A Coffee (Original Author)`](https://www.buymeacoffee.com/0TC98Sk)**
@@ -84,7 +84,7 @@
 - [Downloads & Artifact Catalogs](#downloads--artifact-catalogs)
 - [macOS Gatekeeper & Quarantine Removal](#macos-gatekeeper--quarantine-removal)
 - [Developer Setup, Building & CI Verification](#developer-setup-building--ci-verification)
-- [Changelog (v2.6)](#changelog-v26)
+- [Changelog (v2.6.1)](#changelog-v261)
 - [Upstream Credits & Attribution](#upstream-credits--attribution)
 - [FAQ & Troubleshooting](#faq--troubleshooting)
 - [📬 Maintainer & Contact](#-maintainer--contact)
@@ -259,9 +259,9 @@ ditto -c -k --sequesterRsrc --keepParent \
 
 ---
 
-## Changelog (v2.6)
+## Changelog (v2.6.1)
 
-### [v2.6.x] — Multi-Arch Modernization & Sequoia Compatibility
+### [v2.6.1] — Multi-Arch Modernization & Universal 2 Release Pipeline
 
 - **macOS Sequoia Compatibility**:
   - Resolved crash when switching subnet masks under macOS 15 Sequoia AppKit runloops.
