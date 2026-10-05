@@ -1918,59 +1918,109 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     }
 
     /**
-     Display custom About Panel with developer and upstream credits
-
-     - Parameter sender: invoking menu item
+     Display bespoke modern, elegant, and informative About Window
      */
-    @IBAction func orderFrontStandardAboutPanel(_ sender: Any?)
-    {
-        let creditsString = NSMutableAttributedString()
-
-        let titleAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.boldSystemFont(ofSize: 11),
-            .foregroundColor: NSColor.labelColor
-        ]
-        let bodyAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 10),
-            .foregroundColor: NSColor.secondaryLabelColor
-        ]
-
-        creditsString.append(NSAttributedString(string: "Original Creator & Lead Developer:\n", attributes: titleAttrs))
-        creditsString.append(NSAttributedString(string: "Julien Mulot (https://subnetcalc.mulot.org)\n\n", attributes: bodyAttrs))
-
-        creditsString.append(NSAttributedString(string: "Maintenance, Modernization & Universal 2:\n", attributes: titleAttrs))
-        creditsString.append(NSAttributedString(string: "Harry Dertin Sutisna Alsyundawy (@alsyundawy)\nALSYUNDAWY IT SOLUTION (https://alsyundawy.com)\n\n", attributes: bodyAttrs))
-
-        creditsString.append(NSAttributedString(string: "Algorithmic Reference & Oracle:\n", attributes: titleAttrs))
-        creditsString.append(NSAttributedString(string: "Dr. Thomas Dreibholz (dreibh/subnetcalc)\n\n", attributes: bodyAttrs))
-
-        creditsString.append(NSAttributedString(string: "Copyright:\n", attributes: titleAttrs))
-        creditsString.append(NSAttributedString(string: "Copyright © 2011-2022 Julien Mulot\nMaintained by Harry Dertin Sutisna Alsyundawy (@alsyundawy)\n", attributes: bodyAttrs))
-
-        let versionStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "2.6.2"
-        let buildStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "14"
-
-        let options: [NSApplication.AboutPanelOptionKey: Any] = [
-            .credits: creditsString,
-            .version: "\(versionStr) (Build \(buildStr))",
-            .applicationVersion: versionStr
-        ]
-        NSApp.orderFrontStandardAboutPanel(options: options)
+    @IBAction func orderFrontStandardAboutPanel(_ sender: Any?) {
+        AboutWindowController.shared.show(sender)
     }
+
     /**
      Auto invoked when the Main Windows has been resized
      */
-    func windowDidResize(_ notification: Notification)
-    {
+    func windowDidResize(_ notification: Notification) {
         bitsOnSlidePos()
     }
 
     /**
      Auto invoked when the Main Windows will be closed
      */
-    func windowWillClose(_ notification: Notification)
-    {
+    func windowWillClose(_ notification: Notification) {
         NSApp.terminate(self)
+    }
+
+    // MARK: - Dynamic Theme Switching & Menu Integration
+    func setupThemeMenu() {
+        guard let mainMenu = NSApp.mainMenu else { return }
+        if mainMenu.item(withTitle: "Theme") != nil { return }
+
+        let themeRootItem = NSMenuItem(title: "Theme", action: nil, keyEquivalent: "")
+        let themeMenu = NSMenu(title: "Theme")
+
+        var currentGroup = ""
+        for theme in AppThemeID.allCases {
+            if theme.groupName != currentGroup {
+                if !currentGroup.isEmpty {
+                    themeMenu.addItem(NSMenuItem.separator())
+                }
+                currentGroup = theme.groupName
+                let header = NSMenuItem(title: currentGroup, action: nil, keyEquivalent: "")
+                header.isEnabled = false
+                themeMenu.addItem(header)
+            }
+            let item = NSMenuItem(title: theme.rawValue, action: #selector(didSelectThemeMenuItem(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = theme
+            item.state = (theme == ThemeManager.currentThemeID) ? .on : .off
+            themeMenu.addItem(item)
+        }
+
+        themeRootItem.submenu = themeMenu
+        let windowIndex = mainMenu.indexOfItem(withTitle: "Window")
+        if windowIndex >= 0 {
+            mainMenu.insertItem(themeRootItem, at: windowIndex)
+        } else {
+            mainMenu.addItem(themeRootItem)
+        }
+    }
+
+    @objc func didSelectThemeMenuItem(_ sender: NSMenuItem) {
+        guard let theme = sender.representedObject as? AppThemeID else { return }
+        ThemeManager.setTheme(theme)
+        applyCurrentThemeToUI()
+    }
+
+    func applyCurrentThemeToUI() {
+        ThemeManager.styleWindow(window)
+
+        // Update menu checkmarks
+        if let themeMenu = NSApp.mainMenu?.item(withTitle: "Theme")?.submenu {
+            for item in themeMenu.items {
+                if let theme = item.representedObject as? AppThemeID {
+                    item.state = (theme == ThemeManager.currentThemeID) ? .on : .off
+                }
+            }
+        }
+
+        // Restyle all boxes in window
+        func restyleBoxes(in view: NSView) {
+            for subview in view.subviews {
+                if let box = subview as? NSBox {
+                    ThemeManager.styleCard(box)
+                }
+                restyleBoxes(in: subview)
+            }
+        }
+        if let cv = window.contentView {
+            restyleBoxes(in: cv)
+        }
+
+        ThemeManager.styleTableView(subnetsHostsView)
+        ThemeManager.styleTableView(viewFLSM)
+        ThemeManager.styleTableView(viewVLSM)
+
+        subnetsHostsView.reloadData()
+        viewFLSM.reloadData()
+        viewVLSM.reloadData()
+
+        if let badge = rfcClassificationBadge {
+            ThemeManager.updateBadge(for: badge, classification: badge.toolTip ?? "RFC 1918 Private")
+        }
+
+        if !classBitMap.stringValue.isEmpty {
+            classBitMap.attributedStringValue = ThemeManager.formatColorCodedBitMap(classBitMap.stringValue)
+        }
+
+        AboutWindowController.shared.updateColors()
     }
 
     /**
@@ -1978,6 +2028,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     private func setupModernUI() {
         ThemeManager.styleWindow(window)
+        setupThemeMenu()
 
         // 1. Setup Cloud Profile Popup if needed
         if cloudProfilePopup == nil, let contentView = window.contentView {
@@ -2029,7 +2080,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             }
         }
 
-        // 4. Setup Tables & Tab View with Sleek Modern Dark Styling (Swift-Themes Catppuccin Mocha)
+        // 4. Setup Tables & Tab View with Sleek Modern Styling
         tabView.delegate = self
         subnetsHostsView.delegate = self
         viewFLSM.delegate = self
@@ -2077,5 +2128,305 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
+    }
+}
+
+// MARK: - Modern, Elegant & Informative About Window Controller
+final class AboutWindowController: NSWindowController {
+    static let shared = AboutWindowController()
+
+    private var segmentedControl: NSSegmentedControl?
+    private var cardBox: NSBox?
+    private var titleLabel: NSTextField?
+    private var subtitleLabel: NSTextField?
+    private var versionBadge: NSTextField?
+    private var archBadge: NSTextField?
+    private var platformBadge: NSTextField?
+    private var licenseBadge: NSTextField?
+    private var textView: NSTextView?
+    private var githubBtn: NSButton?
+    private var websiteBtn: NSButton?
+    private var closeBtn: NSButton?
+
+    convenience init() {
+        let win = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 540, height: 520),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        win.title = "About SubnetCalc"
+        win.isReleasedWhenClosed = false
+        self.init(window: win)
+        setupUI()
+    }
+
+    func show(_ sender: Any?) {
+        guard let win = window else { return }
+        updateColors()
+        updateTabContent()
+        win.center()
+        win.makeKeyAndOrderFront(sender)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func setupUI() {
+        guard let win = window, let contentView = win.contentView else { return }
+        contentView.wantsLayer = true
+
+        // 1. App Icon
+        let iconView = NSImageView(frame: NSRect(x: 236, y: 426, width: 68, height: 68))
+        iconView.image = NSApp.applicationIconImage
+        iconView.imageScaling = .scaleProportionallyUpOrDown
+        iconView.wantsLayer = true
+        iconView.layer?.cornerRadius = 14.0
+        iconView.layer?.masksToBounds = true
+        contentView.addSubview(iconView)
+
+        // 2. App Title
+        let title = NSTextField(frame: NSRect(x: 20, y: 388, width: 500, height: 32))
+        title.isEditable = false
+        title.isBezeled = false
+        title.drawsBackground = false
+        title.alignment = .center
+        title.font = NSFont.systemFont(ofSize: 22, weight: .bold)
+        title.stringValue = "SubnetCalc"
+        contentView.addSubview(title)
+        self.titleLabel = title
+
+        // 3. Subtitle
+        let subtitle = NSTextField(frame: NSRect(x: 20, y: 366, width: 500, height: 20))
+        subtitle.isEditable = false
+        subtitle.isBezeled = false
+        subtitle.drawsBackground = false
+        subtitle.alignment = .center
+        subtitle.font = NSFont.systemFont(ofSize: 12, weight: .medium)
+        subtitle.stringValue = "High-Precision Dual-Stack Subnet Calculator for macOS"
+        contentView.addSubview(subtitle)
+        self.subtitleLabel = subtitle
+
+        // 4. Badges Row
+        let badgeY: CGFloat = 338
+        let versionStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "2.6.2"
+        let buildStr = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "14"
+
+        let b1 = makeBadge(frame: NSRect(x: 45, y: badgeY, width: 110, height: 20), text: "v\(versionStr) (Build \(buildStr))")
+        let b2 = makeBadge(frame: NSRect(x: 163, y: badgeY, width: 100, height: 20), text: "Universal 2")
+        let b3 = makeBadge(frame: NSRect(x: 271, y: badgeY, width: 105, height: 20), text: "macOS 10.15+")
+        let b4 = makeBadge(frame: NSRect(x: 384, y: badgeY, width: 95, height: 20), text: "GPL-2.0")
+
+        contentView.addSubview(b1)
+        contentView.addSubview(b2)
+        contentView.addSubview(b3)
+        contentView.addSubview(b4)
+        self.versionBadge = b1
+        self.archBadge = b2
+        self.platformBadge = b3
+        self.licenseBadge = b4
+
+        // 5. Container Card
+        let card = NSBox(frame: NSRect(x: 20, y: 64, width: 500, height: 262))
+        card.titlePosition = .noTitle
+        card.boxType = .custom
+        card.borderWidth = 1.0
+        card.cornerRadius = 8.0
+        contentView.addSubview(card)
+        self.cardBox = card
+
+        // 6. Segmented Control inside Card
+        let seg = NSSegmentedControl(frame: NSRect(x: 20, y: 220, width: 460, height: 28))
+        seg.segmentCount = 3
+        seg.setLabel("Capabilities", forSegment: 0)
+        seg.setLabel("Themes", forSegment: 1)
+        seg.setLabel("Credits & Lineage", forSegment: 2)
+        seg.selectedSegment = 0
+        seg.target = self
+        seg.action = #selector(segmentChanged(_:))
+        card.addSubview(seg)
+        self.segmentedControl = seg
+
+        // 7. Scrollable Text Content inside Card
+        let scrollView = NSScrollView(frame: NSRect(x: 16, y: 14, width: 468, height: 198))
+        scrollView.hasVerticalScroller = true
+        scrollView.borderType = .noBorder
+        scrollView.drawsBackground = false
+
+        let tv = NSTextView(frame: NSRect(x: 0, y: 0, width: 468, height: 198))
+        tv.isEditable = false
+        tv.isSelectable = true
+        tv.drawsBackground = false
+        tv.textContainerInset = NSSize(width: 8, height: 8)
+        scrollView.documentView = tv
+        card.addSubview(scrollView)
+        self.textView = tv
+
+        // 8. Bottom Action Buttons
+        let github = NSButton(frame: NSRect(x: 20, y: 16, width: 140, height: 32))
+        github.title = "GitHub Repository"
+        github.bezelStyle = .rounded
+        github.font = NSFont.systemFont(ofSize: 11, weight: .medium)
+        github.target = self
+        github.action = #selector(openGitHub(_:))
+        contentView.addSubview(github)
+        self.githubBtn = github
+
+        let website = NSButton(frame: NSRect(x: 168, y: 16, width: 110, height: 32))
+        website.title = "Website"
+        website.bezelStyle = .rounded
+        website.font = NSFont.systemFont(ofSize: 11, weight: .medium)
+        website.target = self
+        website.action = #selector(openWebsite(_:))
+        contentView.addSubview(website)
+        self.websiteBtn = website
+
+        let close = NSButton(frame: NSRect(x: 410, y: 16, width: 110, height: 32))
+        close.title = "Close"
+        close.bezelStyle = .rounded
+        close.font = NSFont.systemFont(ofSize: 11, weight: .medium)
+        close.keyEquivalent = "\r"
+        close.target = self
+        close.action = #selector(closeWindow(_:))
+        contentView.addSubview(close)
+        self.closeBtn = close
+
+        updateColors()
+        updateTabContent()
+    }
+
+    private func makeBadge(frame: NSRect, text: String) -> NSTextField {
+        let badge = NSTextField(frame: frame)
+        badge.isEditable = false
+        badge.isBezeled = false
+        badge.drawsBackground = true
+        badge.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .semibold)
+        badge.alignment = .center
+        badge.stringValue = text
+        badge.wantsLayer = true
+        badge.layer?.cornerRadius = 5.0
+        badge.layer?.masksToBounds = true
+        return badge
+    }
+
+    @objc private func segmentChanged(_ sender: NSSegmentedControl) {
+        updateTabContent()
+    }
+
+    @objc private func openGitHub(_ sender: Any?) {
+        if let url = URL(string: "https://github.com/alsyundawy/SubnetCalc-MacOS") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    @objc private func openWebsite(_ sender: Any?) {
+        if let url = URL(string: "https://alsyundawy.com") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    @objc private func closeWindow(_ sender: Any?) {
+        window?.close()
+    }
+
+    func updateColors() {
+        guard let win = window else { return }
+        ThemeManager.styleWindow(win)
+
+        let isDark = ThemeManager.current.isDark
+        win.backgroundColor = ThemeManager.current.windowBackground
+        titleLabel?.textColor = isDark ? NSColor.white : NSColor.black
+        subtitleLabel?.textColor = isDark ? ThemeManager.current.accentCyan : ThemeManager.current.accentBlue
+
+        let badgeBg = isDark ? NSColor(calibratedWhite: 1.0, alpha: 0.10) : NSColor(calibratedWhite: 0.0, alpha: 0.08)
+        let badgeFg = ThemeManager.current.tableTextPrimary
+
+        for b in [versionBadge, archBadge, platformBadge, licenseBadge] {
+            b?.backgroundColor = badgeBg
+            b?.textColor = badgeFg
+        }
+
+        cardBox?.fillColor = ThemeManager.current.cardBackground
+        cardBox?.borderColor = ThemeManager.current.cardBorder
+
+        updateTabContent()
+    }
+
+    private func updateTabContent() {
+        guard let tv = textView, let seg = segmentedControl else { return }
+        let selected = seg.selectedSegment
+        let primaryColor = ThemeManager.current.tableTextPrimary
+        let accentColor = ThemeManager.current.accentCyan
+        let isDark = ThemeManager.current.isDark
+
+        let titleAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.boldSystemFont(ofSize: 12),
+            .foregroundColor: isDark ? NSColor.white : NSColor.black
+        ]
+        let subheadAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.boldSystemFont(ofSize: 11),
+            .foregroundColor: accentColor
+        ]
+        let bodyAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: primaryColor
+        ]
+
+        let attrStr = NSMutableAttributedString()
+
+        switch selected {
+        case 0:
+            // Capabilities
+            attrStr.append(NSAttributedString(string: "⚡ Pure Native Cocoa & AppKit Architecture\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Instant sub-0.1s launch, zero Electron/Chromium overhead, < 25 MB RAM footprint.\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "🌐 Dual-Stack IPv4 & IPv6 Lossless Calculation\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Simultaneous classless CIDR mask parsing, 128-bit lossless IPv6 integer mathematics, and interactive mask synchronization.\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "📐 Comprehensive Subnetting Suite\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Fixed-Length Subnet Masking (FLSM), Variable-Length Subnet Masking (VLSM) host solver, and CIDR supernet aggregation.\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "🖥️ Live Bit Visualizer & RFC Security\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Interactive color-coded bit breakdown, RFC 4193 ULA generator with 40-bit cryptographic entropy, and RFC 4180 CSV export with formula injection defense.\n", attributes: bodyAttrs))
+
+        case 1:
+            // Themes
+            attrStr.append(NSAttributedString(string: "🎨 14 Developer Themes (ActuallyTaylor/Swift-Themes)\n", attributes: titleAttrs))
+            attrStr.append(NSAttributedString(string: "SubnetCalc includes standard color palettes from ActuallyTaylor/Swift-Themes:\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "• Catppuccin: ", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Mocha (Default Dark), Macchiato, Frappé, Latte (Light)\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "• Dracula: ", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Official high-contrast vampire dark palette\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "• Gruvbox: ", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Dark & Light retro groove palettes\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "• Solarized: ", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Dark & Light precision scientific palettes\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "• Tomorrow: ", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Night Blue, Night, Night Eighties, Night Bright, Day\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "Switch themes dynamically at any time using the Theme menu in the macOS Menu Bar!\n", attributes: titleAttrs))
+
+        default:
+            // Credits & Lineage
+            attrStr.append(NSAttributedString(string: "Original Creator & Lead Developer:\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Julien Mulot (https://subnetcalc.mulot.org)\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "Maintenance, Modernization & Universal 2:\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Harry Dertin Sutisna Alsyundawy (@alsyundawy)\nALSYUNDAWY IT SOLUTION (https://alsyundawy.com)\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "Algorithmic Reference & Oracle:\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Dr. Thomas Dreibholz (dreibh/subnetcalc)\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "Color Themes Architecture:\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "Taylor Lindsey (https://github.com/ActuallyTaylor/Swift-Themes)\n\n", attributes: bodyAttrs))
+
+            attrStr.append(NSAttributedString(string: "License & Heritage:\n", attributes: subheadAttrs))
+            attrStr.append(NSAttributedString(string: "GNU General Public License v2.0 (GPL-2.0)\nCopyright © 2011-2022 Julien Mulot\nMaintenance © 2026 Harry Dertin Sutisna Alsyundawy\n", attributes: bodyAttrs))
+        }
+
+        tv.textStorage?.setAttributedString(attrStr)
     }
 }

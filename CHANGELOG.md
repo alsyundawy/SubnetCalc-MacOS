@@ -11,40 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Modern Dark Glassmorphic Theme & AppKit Appearance Overhaul (`ThemeManager.swift`)**:
-  - Engineered native macOS Dark Aqua theme matching modern enterprise dark dashboards (midnight `#080c16`, slate `#0f172a`, and subtle border cards).
-  - High-craft typographic and color-coded bit visualizer formatting: Neon Cyan (`#00e5ff` for network bits `n`), Royal Purple (`#a855f7` for subnet bits `s`), Emerald Green (`#10b981` for host bits `h`), and muted grey for dot separators.
-  - Window styling helper automatically configuring dark background vibrancy on startup while preserving manual dark mode toggling.
-- **Multi-Cloud Subnet Reservation Profiles (`CloudProfile`)**:
-  - Implemented reservation calculation engine supporting **Standard RFC 1918**, **AWS VPC** (5 reserved addresses: `.0` Network, `.1` VPC Router/Default Gateway, `.2` Amazon DNS, `.3` Reserved, `.last` Broadcast; min prefix `/28`), **Azure VNet** (5 reserved addresses: `.0` Network, `.1` Default Gateway, `.2` Primary DNS, `.3` Secondary DNS, `.last` Broadcast; min prefix `/29`), **Google Cloud (GCP) VPC** (4 reserved addresses: `.0` Network, `.1` Default Gateway, `.last-1` Reserved, `.last` Broadcast; min prefix `/29`), and **Oracle Cloud (OCI)** (3 reserved addresses: `.0` Network, `.1` Default Gateway, `.last` Broadcast; min prefix `/30`).
-  - Added interactive Cloud Profile popup selector dynamically updating usable IP ranges, host counts, and role mappings without altering standard RFC calculations.
-- **Authoritative Real-Time RFC 1918 & IP Address Range Classifier**:
-  - Added real-time classification badge dynamically categorizing input IPv4 addresses: RFC 1918 Private (Class A `10.0.0.0/8`, Class B `172.16.0.0/12`, Class C `192.168.0.0/16`), RFC 6598 CGNAT / Shared Space (`100.64.0.0/10`), RFC 1122 Loopback (`127.0.0.0/8`), RFC 3927 Link-Local APIPA (`169.254.0.0/16`), RFC 5771 Multicast Class D (`224.0.0.0/4`), RFC 1122 Reserved Class E (`240.0.0.0/4`), and Public Routable IPv4.
-  - Real-time pill badge with tailored color schemes (emerald green for private, sky blue for public, amber for CGNAT, teal for loopback, purple for reserved).
-- **VLSM Capacity & Host Efficiency Analytics**:
-  - Added real-time host utilization analytics to the VLSM tab computing total requested hosts vs. allocated block capacity, wasted host overhead, and efficiency percentage.
-  - Interactive progress indicator and monospace analytics label providing immediate feedback on subnet address space optimization.
-- **RFC 4193 Unique Local IPv6 Address (ULA) Generator**:
-  - Implemented cryptographically secure ULA generator utilizing macOS `SecRandomCopyBytes` for 40-bit pseudo-random Global IDs.
-  - One-click "Generate ULA (RFC 4193)" button creating canonical `fdXX:XXXX:XXXX::/48` prefixes and default `/64` subnets.
-- **Spreadsheet-Safe Data Portability Engine (`DataPortability`)**:
-  - Implemented defense-in-depth protection against Spreadsheet Formula Injection (CWE-1236) by automatically prefixing dangerous leading execution characters (`=`, `+`, `-`, `@`) with `'`.
-  - Re-engineered CSV exports (`exportSubnetsHosts`, `exportFLSM`, `exportVLSM`) adhering strictly to RFC 4180 quotation escaping, standard comma `,` delimiters, and UTF-8 encoding.
-  - Added Plain Text ASCII table formatter (`exportPlainTextTable` / `exportAsciiTable`) with dynamic column alignment.
-- **Automated Verification Test Suite (`SubnetCalcTests/main.swift`)**:
-  - Added 76 automated test assertions covering multi-cloud ranges, bounds checking, address classifications, ULA entropy and canonical formatting, CSV escaping, and zero-regression parity.
-
-### Changed
-
-- Updated version numbers across project bundle: `MARKETING_VERSION = 2.6.2`, `CURRENT_PROJECT_VERSION = 14`, and about panel fallback to `2.6.2 (Build 14)`.
-- Replaced non-standard semicolon `;` in CSV export outputs with standard RFC 4180 comma delimiters.
-- Completely preserved the exact 6-tab architecture (`IPv4`, `Subnets/Hosts`, `CIDR`, `FLSM`, `VLSM`, `IPv6`) with zero breaking changes to existing calculations.
-
-### Fixed & Hardened (13-Pillar Production Code Review & UI/UX Refinement)
-
-- **`Swift-Themes` Standard Palettes Integration (`ThemeManager.swift`)**:
-  - Integrated the open-source color palette architecture from [`ActuallyTaylor/Swift-Themes`](https://github.com/ActuallyTaylor/Swift-Themes) into `ThemeManager.swift`.
-  - Added native `BridgeColor` type alias, `NSColor(hex:alpha:)` scanner, and standard palettes: **Catppuccin Mocha** (`base: #1e1e2e`, `mantle: #181825`, `crust: #11111b`, `surface0: #313244`, `text: #cdd6f4`, `sapphire: #74c7ec`, `mauve: #cba6f7`, `green: #a6e3a1`), **Dracula**, and **Tomorrow Night Blue**.
+- **ActuallyTaylor/Swift-Themes 14-Theme Engine (`ThemeManager.swift`)**:
+  - Fully integrated all color palettes from [`ActuallyTaylor/Swift-Themes`](https://github.com/ActuallyTaylor/Swift-Themes).
+  - Supported 14 standard presets across 5 theme families:
+    - **Catppuccin**: Mocha (Default Dark), Macchiato, Frappé, Latte (Light).
+    - **Dracula**: Official high-contrast vampire dark palette.
+    - **Gruvbox**: Gruvbox Dark & Gruvbox Light retro developer palettes.
+    - **Solarized**: Solarized Dark & Solarized Light precision palettes.
+    - **Tomorrow**: Tomorrow Night Blue, Tomorrow Night, Tomorrow Night Eighties, Tomorrow Night Bright, Tomorrow Day.
+  - Added native dynamic **Theme** menu in macOS Menu Bar with real-time checkmarks, persistent theme selection saved to `UserDefaults`, and dynamic UI restyling across windows, cards, tables, bit maps, and badges.
+- **Bespoke Modern & Informative About Window (`AboutWindowController`)**:
+  - Replaced Apple's standard plain dialog with an elegant, modern, and informative native AppKit About Window (540x500).
+  - Features styled 68x68 app icon, bold typography, version badges (`v2.6.2 (Build 14)`, `Universal 2`, `macOS 10.15+`, `GPL-2.0`).
+  - Interactive segmented control switching between **Capabilities**, **Themes**, and **Credits & Lineage** (honoring original author Julien Mulot, maintainer Harry Dertin Sutisna Alsyundawy, algorithmic oracle Dr. Thomas Dreibholz, and themes author Taylor Lindsey).
+  - Direct action buttons opening the GitHub repository, maintainer website (`https://alsyundawy.com`), and dismiss controls.
+- **Canonical `SubnetCalc.app` Distribution Invariant**:
+  - Re-engineered builder runner workflow (`macos-builder.yml`) so that inside every `.dmg` disk image and `.zip` archive across all architectures (`Universal 2`, `arm64`, and `x86_64`), the application bundle is strictly named **`SubnetCalc.app`**.
+  - Added automated `/Applications` drag-and-drop symlinks to all `.dmg` staging folders.
+- **High-Definition Desktop Banner Flyer**:
+  - Created a crystal-clear, razor-sharp cyberpunk neon banner flyer (`assets/subnetcalc-desktop-banner.jpg`) modeled after the flagship desktop flyer design without hardcoded version numbers, prominently embedded at the top of `README.md`.
+- **Enhanced GitHub Repository About Metadata**:
+  - Enriched repository description, official homepage, and added comprehensive topic tags (`apple-silicon`, `cidr`, `cocoa`, `dark-mode`, `flsm`, `ipv4`, `ipv6`, `macos`, `network-tools`, `networking`, `subnet-calculator`, `swift`, `universal-binary`, `vlsm`).
   - Anchored application canvas, containers, alternating table rows, and typography to Catppuccin Mocha, completely replacing macOS Dark Aqua sepia brown tints with an authentic developer-grade palette.
 - **Intelligent Tab Switching & Canonical CIDR Synchronization**:
   - Implemented `NSTabViewDelegate` in `SubnetCalcAppDelegate` ensuring when switching between IPv4 tabs and IPv6 tab, the address input smoothly defaults to `/24` (`10.0.0.0/24`) and `/64` (`2001:db8::/64`) without overwriting user-entered custom addresses.

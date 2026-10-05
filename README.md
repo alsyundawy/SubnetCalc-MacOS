@@ -2,6 +2,12 @@
 
 <p align="center">
   <a href="https://github.com/alsyundawy/SubnetCalc-MacOS">
+    <img src="assets/subnetcalc-desktop-banner.jpg" width="100%" alt="SubNetCalc Desktop Mac Banner Flyer">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/alsyundawy/SubnetCalc-MacOS">
     <img src="logo.png" width="128" height="134" alt="SubnetCalc Native macOS Application Icon">
   </a>
 </p>
@@ -179,12 +185,17 @@ Architectures in the fat file: /Applications/SubnetCalc.app/Contents/MacOS/Subne
 
 Pre-compiled production releases and disk images are available on the [GitHub Releases](https://github.com/alsyundawy/SubnetCalc-MacOS/releases/latest) page:
 
-| Package                 | Format            | File Name                        | Architecture                   | Compatibility           |
-| :---------------------- | :---------------- | :------------------------------- | :----------------------------- | :---------------------- |
-| **Universal Installer** | `.dmg` Disk Image | `SubnetCalc-2.6.2-Universal.dmg` | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
-| **Apple Silicon Slice** | `.dmg` Disk Image | `SubnetCalc-2.6.2-arm64.dmg`     | `arm64` (Apple Silicon)        | macOS 11.0+             |
-| **Intel Mac Slice**     | `.dmg` Disk Image | `SubnetCalc-2.6.2-x64.dmg`       | `x86_64` (Intel Macs)          | macOS 10.15+ (Catalina) |
-| **Universal Archive**   | `.zip` Archive    | `SubnetCalc-2.6.2-Universal.zip` | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
+| Package                 | Format            | File Name                        | Application Inside  | Architecture                   | Compatibility           |
+| :---------------------- | :---------------- | :------------------------------- | :------------------ | :----------------------------- | :---------------------- |
+| **Universal Installer** | `.dmg` Disk Image | `SubnetCalc-2.6.2-Universal.dmg` | `SubnetCalc.app`    | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
+| **Universal Archive**   | `.zip` Archive    | `SubnetCalc-2.6.2-Universal.zip` | `SubnetCalc.app`    | `Universal 2` (arm64 + x86_64) | macOS 10.15+ (Catalina) |
+| **Apple Silicon Slice** | `.dmg` Disk Image | `SubnetCalc-2.6.2-arm64.dmg`     | `SubnetCalc.app`    | `arm64` (Apple Silicon)        | macOS 11.0+             |
+| **Apple Silicon Slice** | `.zip` Archive    | `SubnetCalc-2.6.2-arm64.zip`     | `SubnetCalc.app`    | `arm64` (Apple Silicon)        | macOS 11.0+             |
+| **Intel Mac Slice**     | `.dmg` Disk Image | `SubnetCalc-2.6.2-x64.dmg`       | `SubnetCalc.app`    | `x86_64` (Intel Macs)          | macOS 10.15+ (Catalina) |
+| **Intel Mac Slice**     | `.zip` Archive    | `SubnetCalc-2.6.2-x64.zip`       | `SubnetCalc.app`    | `x86_64` (Intel Macs)          | macOS 10.15+ (Catalina) |
+
+> [!NOTE]
+> Regardless of the packaging format or target architecture, mounting any `.dmg` or extracting any `.zip` delivers the application bundle named **`SubnetCalc.app`** with an automated `/Applications` drag-and-drop link.
 
 ---
 

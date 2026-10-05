@@ -14,12 +14,14 @@
 
 Version **2.6.2** delivers a landmark modernization and feature expansion. Drawing inspiration from modern dark enterprise dashboards (Visual Subnet Calculator Web GUI and KusumaVision NMS V2), v2.6.2 integrates:
 
-1. **Pillar 1: Modern Dark Glassmorphic AppKit Overhaul** with high-contrast palette tokens (`#080c16`, `#0f172a`), Dark Aqua appearance, and vivid attributed bit visualizer (Neon Cyan `n`, Royal Purple `s`, Emerald Green `h`, and muted gray `.`).
-2. **Pillar 2: Multi-Cloud Subnet Reservation Profiles** supporting AWS VPC, Azure VNet, Google Cloud (GCP) VPC, Oracle Cloud (OCI), and Standard RFC 1918.
-3. **Pillar 3: Real-Time RFC 1918 & IP Range Classifier** with color-coded pill status badges.
-4. **Pillar 4: VLSM Capacity & Host Efficiency Analytics** calculating real-time host utilization, address space waste overhead, and efficiency percentage.
-5. **Pillar 5: RFC 4193 IPv6 ULA Generator** powered by CSPRNG (`SecRandomCopyBytes`) 40-bit Global ID entropy.
-6. **Pillar 6: Spreadsheet-Safe Data Portability Engine** defending against CSV Formula Injection (CWE-1236) and producing RFC 4180 CSV and Plain Text ASCII tables.
+1. **Pillar 1: Complete 14-Theme Appearance Engine (`ThemeManager.swift`)** powered by [`ActuallyTaylor/Swift-Themes`](https://github.com/ActuallyTaylor/Swift-Themes) covering Catppuccin (Mocha, Macchiato, Frappé, Latte), Dracula, Gruvbox (Dark/Light), Solarized (Dark/Light), and Tomorrow (Night Blue, Night, Night Eighties, Night Bright, Day) with dynamic menu bar switching and persistent `UserDefaults` storage.
+2. **Pillar 2: Bespoke Modern & Informative About Window (`AboutWindowController`)** with styled application icon, active theme synchronization, segmented navigation across Capabilities, Themes, and Upstream Lineage/Credits.
+3. **Pillar 3: Canonical Distribution Packaging Invariant** guaranteeing that inside all `.dmg` disk images and `.zip` archives across Universal 2, ARM64, and Intel architectures, the application bundle is strictly named `SubnetCalc.app` with drag-and-drop `/Applications` installation links.
+4. **Pillar 4: Multi-Cloud Subnet Reservation Profiles** supporting AWS VPC, Azure VNet, Google Cloud (GCP) VPC, Oracle Cloud (OCI), and Standard RFC 1918.
+5. **Pillar 5: Real-Time RFC 1918 & IP Range Classifier** with color-coded pill status badges.
+6. **Pillar 6: VLSM Capacity & Host Efficiency Analytics** calculating real-time host utilization, address space waste overhead, and efficiency percentage.
+7. **Pillar 7: RFC 4193 IPv6 ULA Generator** powered by CSPRNG (`SecRandomCopyBytes`) 40-bit Global ID entropy.
+8. **Pillar 8: Spreadsheet-Safe Data Portability Engine** defending against CSV Formula Injection (CWE-1236) and producing RFC 4180 CSV and Plain Text ASCII tables.
 
 All additions are 100% additive and non-breaking, strictly preserving the classic 6-tab structure (`IPv4`, `Subnets/Hosts`, `CIDR`, `FLSM`, `VLSM`, `IPv6`) and backwards parity.
 
