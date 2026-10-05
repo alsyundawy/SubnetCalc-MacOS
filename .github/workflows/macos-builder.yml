@@ -113,14 +113,14 @@ jobs:
 
       - name: Generate Cryptographic SHA-256 Checksums
         run: |
-          cd dist
-          shasum -a 256 * > SHA256SUMS.txt
+          cd dist || exit 1
+          shasum -a 256 ./* > SHA256SUMS.txt
           echo "=== SHA-256 Checksums ==="
           cat SHA256SUMS.txt
           cd ..
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubnetCalc-macOS-Builds
           path: dist/*
