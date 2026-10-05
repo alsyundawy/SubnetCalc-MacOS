@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-Architecture CI/CD Automation**:
   - Implemented GitHub Actions Swift CI matrix testing builds on both **Apple Silicon** (`macos-latest` ARM64) and **Intel** (`macos-15-intel` x86_64).
   - Created automated **Universal 2 Builder & Release Workflow** (`macos-builder.yml`) compiling Universal 2 binaries, standalone architecture slices, and dedicated DMG installers (`SubnetCalc-2.6.1-Universal.dmg`, `SubnetCalc-2.6.1-arm64.dmg`, `SubnetCalc-2.6.1-x64.dmg`) and ZIP archives with cryptographic SHA-256 checksums (`SHA256SUMS.txt`).
+- **MegaLinter & Super-Linter Automated Quality Gates**:
+  - Implemented `.github/workflows/super-linter.yml` powered by `super-linter/super-linter/slim:v7` scoped specifically to active repository languages (`SwiftLint`, `markdownlint`, `yamllint`, `actionlint`, `shellcheck`, and `gitleaks`) with strict exclusions for proprietary Xcode project bundles and asset catalogs.
+  - Implemented `.github/workflows/mega-linter.yml` powered by `oxsecurity/megalinter@v8` and tailored via `.mega-linter.yml`, `.markdownlint.json`, and `.yamllint.yml` for unified multi-engine static analysis and security scanning.
 - **Brand-New Application Icon & Logo**:
   - Modernized application branding with transparent background glassmorphic network topology squircle icon (`logo.png`).
   - Generated and synchronized pixel-perfect macOS Human Interface Guidelines icon sets across all scales (16x16, 32x32, 64x64, 128x128, 256x256, 512x512, 1024x1024) across `Images.xcassets/AppIcon.appiconset` and repository root assets.

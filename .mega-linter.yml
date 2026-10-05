@@ -1,0 +1,28 @@
+---
+# MegaLinter Configuration for SubnetCalc-MacOS
+# Documentation: https://megalinter.io/latest/configuration/
+
+APPLY_FIXES: none
+DEFAULT_BRANCH: master
+
+# Scope linters strictly to active repository technologies
+ENABLE_LINTERS:
+  - SWIFT_SWIFTLINT
+  - MARKDOWN_MARKDOWNLINT
+  - YAML_YAMLLINT
+  - ACTION_ACTIONLINT
+  - JSON_JSONLINT
+  - REPOSITORY_SECRETS_GITLEAKS
+
+# Exclude proprietary Xcode project bundles, Interface Builder XIBs, and binary assets
+FILTER_REGEX_EXCLUDE: "(SubnetCalc\\.xcodeproj/|SubnetCalc/Images\\.xcassets/|Base\\.lproj/|build/|dist/|\\.trunk/|Credits\\.rtf)"
+
+# Linter Configuration Bindings
+SWIFT_SWIFTLINT_CONFIG_FILE: ".swiftlint.yml"
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: ".markdownlint.json"
+YAML_YAMLLINT_CONFIG_FILE: ".yamllint.yml"
+
+# Output and Performance Formatting
+SHOW_ELAPSED_TIME: true
+FILE_IO_MULTITHREADING: true
+PRINT_ALPACA: false

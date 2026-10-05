@@ -1,0 +1,47 @@
+name: Super-Linter
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter/slim@v7
+        env:
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' }}
+
+          # Actively validated linters tailored to SubnetCalc-MacOS
+          VALIDATE_SWIFT: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_JSON: true
+          VALIDATE_BASH: true
+          VALIDATE_GIT_DIFF: true
+
+          # Configuration file mappings
+          SWIFT_CONFIG_FILE: .swiftlint.yml
+          MARKDOWN_CONFIG_FILE: .markdownlint.json
+          YAML_CONFIG_FILE: .yamllint.yml
+
+          # Exclude Xcode proprietary files, asset catalogs, and build output
+          FILTER_REGEX_EXCLUDE: "(.*SubnetCalc\\.xcodeproj/.*|.*SubnetCalc/Images\\.xcassets/.*|.*Base\\.lproj/.*|.*build/.*|.*dist/.*|.*\\.trunk/.*|.*Credits\\.rtf)"
