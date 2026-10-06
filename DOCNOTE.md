@@ -56,6 +56,7 @@ Every component across `SubnetCalcAppDelegate.swift`, `IPSubnetcalc.swift`, `Add
 - **Issue 9 (Automated Quality Gates via Tailored MegaLinter & Super-Linter)**: Configured dedicated `.github/workflows/super-linter.yml` and `.github/workflows/mega-linter.yml` runners. Tailored linter engines specifically to this Swift / Cocoa AppKit repository with `.mega-linter.yml`, `.markdownlint.json`, and `.yamllint.yml`, explicitly excluding proprietary Xcode project files (`project.pbxproj`), asset catalogs, and build directories to eliminate false positives while enforcing 100% strict SwiftLint and documentation standards.
 - **Issue 10 (NSTableView Delegate Force-Unwraps & Unchecked Subscript Access)**: In `tableView(_:setObjectValue:for:row:)` and `tableView(_:objectValueFor:tableColumn:row:)`, `tableColumn!` was force-unwrapped across 10 locations, `object as! String` was force-cast, and `subnetsVLSM[row]` lacked bounds protection. When `tableColumn` was nil or row was out of range during full-row draws or dynamic resizing, this triggered immediate traps. Remediated with safe optional bindings (`guard let column = tableColumn`, `if let str = object as? String`, `row >= 0 && row < subnetsVLSM.count`).
 - **Issue 11 (Main Thread Calculation Force-Unwraps in AppDelegate)**: In `doAddressMap`, `doSubnet`, `doSubnetHost`, `doFLSM`, and `doCIDR`, `ipsc!` was repeatedly force-unwrapped across dozens of calls following a weak `if ipsc != nil` check. Remediated using `guard let ipsc = self.ipsc else { return }`, guaranteeing deterministic null safety and eliminating potential crash vectors.
+- **Issue 12 (Interactive Mask Clobbering & Control Resets in Subnets/Hosts, CIDR, and IPv6 Tabs)**: In previous revisions, `addrField.stringValue` was aggressively overwritten with `IP/mask` strings, causing `splitAddrMask` to parse stale mask suffixes on subsequent slider or combo box adjustments and resetting newly selected mask bits. Furthermore, `changeIPv6MaskBits`, `changeIPv6Subnets`, and `changeIPv6MaxHosts` lacked robust parsing for typed vs selected entries. Remediated by strictly aligning calculation flows with upstream v2.6, preserving pure IP inputs in `addrField`, removing disruptive tab-switching mutations, and hardening combo box handlers with boundary guards (1–128 bits).
 
 ### 2. Syntax & Compiler Review
 
@@ -215,13 +216,21 @@ Following empirical visual validation, user design feedback, and integration of 
    - Repositioned the "Short" checkbox to `x: 345, y: 571`, establishing 250px of clean whitespace separation from the "IPv6 Address" title.
    - Symmetrically widened the "IPv6 Address" box to 418px and narrowed "IPv4 conversion" to 188px with 6px uniform padding on both margins.
 
-4. **Standard Default Form Inputs (`/24` IPv4 and `/64` IPv6) & Tab View Delegation**:
-   - Configured initial form inputs across all tabs (`IPv4`, `Subnets/Hosts`, `FLSM`, `VLSM`) to default to standard classless `/24` (`255.255.255.0`) instead of legacy Class A `/8`.
-   - Initialized `IPv6` mask bits to standard `/64`.
-   - Populated `addrField` on launch with `10.0.0.0/24` and automatically performed initial calculation, presenting a fully populated, modern dark UI immediately on application start.
-   - Implemented `NSTabViewDelegate.tabView(_:didSelect:)`: when switching to the IPv6 tab, if the field is not already an IPv6 address, it smoothly defaults to `2001:db8::/64` and calculates; when switching back to IPv4 tabs, if the field is IPv6, it defaults to `10.0.0.0/24` and calculates, without overriding custom user inputs.
-   - Synchronized `addrField.stringValue` on every calculation to canonical CIDR format (`IP/mask`), ensuring history records and address displays always retain unambiguous CIDR prefix lengths.
+4. **Standard Form Defaults & Strict Upstream State Integrity Across All Tabs**:
+   - Configured initial form inputs across all IPv4 tabs (`IPv4`, `Subnets/Hosts`, `FLSM`, `VLSM`) to default to standard classless `/24` (`255.255.255.0`) instead of legacy Class A `/8`. Initialized `IPv6` mask bits to standard `/64`.
+   - Populated `addrField` on launch with `10.0.0.0` and automatically performed initial calculation, presenting a fully populated, modern dark UI immediately on application start.
+   - **Elimination of Mask Clobbering**: In strict alignment with upstream v2.6, `addrField.stringValue` retains the pure IP address without appending `/mask` suffixes after calculation. This eliminates the mask clobbering bug where moving the Subnets/Hosts slider, selecting CIDR combos, or changing IPv6 dropdowns caused `splitAddrMask` to overwrite newly selected mask bits with stale input values.
+   - **Tab State Integrity**: Eliminated disruptive automatic tab-switching overrides, preserving active user inputs, custom IP addresses, and calculation states across all 6 tabs.
 
-5. **Intelligent IPv6 RFC Classification**:
+5. **Hardened IPv6 Tab Interactivity & Fallback Combos**:
+   - Re-engineered `changeIPv6MaskBits`, `changeIPv6Subnets`, and `changeIPv6MaxHosts` to reliably support both dropdown popup item selection and direct manual keyboard entry with strict boundary validation (1–128 bits).
+   - Added automatic fallback to combo box `stringValue` when items are selected or calculated, preventing blank combo displays and ensuring the UI remains 100% synchronized with the underlying calculation engine.
+   - Preserved `addrField.stringValue` purity when calculating IPv6 from converted IPv4 addresses or native IPv6 entries.
+
+6. **Top Bar Header Alignment & About Window Badge Geometry Polish**:
+   - Repositioned the RFC status pill badge directly adjacent to `addrField` (`x: 352`), restoring canonical macOS left-alignment (`x: 88`) for the `"IP Address"` label.
+   - Expanded About Window version badge pill width from 110px to 140px, completely resolving badge text truncation (`v2.6.2 (Build 14)`) and establishing symmetrical centering across all four metadata badges.
+
+7. **Intelligent IPv6 RFC Classification**:
    - Expanded `IPSubnetCalc` with `classifyIPv6Address` identifying RFC 4193 ULA (`fc00::/7`), RFC 4291 Link-Local (`fe80::/10`), Loopback (`::1`), Multicast (`ff00::/8`), Documentation (`2001:db8::/32`), and Global Unicast.
    - Upgraded status pill badges to display concise labels (`ULA`, `Private`, `Public`, `CGNAT`, `Loopback`, `Link-Local`, `Multicast`, `Reserved`) with full RFC descriptions in interactive tooltips, resolving the previous bug where IPv6 ULA addresses defaulted to "Public".
