@@ -56,6 +56,7 @@ public enum AppThemeID: String, CaseIterable {
     case dracula = "Dracula"
     case draculaSoft = "Dracula Soft"
     case draculaAlucard = "Dracula Alucard"
+    case draculaLight = "Dracula Light"
 
     // 3. Tokyo Night Family
     case tokyoNight = "Tokyo Night"
@@ -85,11 +86,13 @@ public enum AppThemeID: String, CaseIterable {
     case gitHubDark = "GitHub Dark"
     case gitHubDarkDimmed = "GitHub Dark Dimmed"
     case gitHubLight = "GitHub Light"
+    case gitHubLightHighContrast = "GitHub Light High Contrast"
 
     // 9. Monokai Family
     case monokaiClassic = "Monokai Classic"
     case monokaiPro = "Monokai Pro"
     case monokaiCharcoal = "Monokai Charcoal"
+    case monokaiLight = "Monokai Light"
 
     // 10. Rosé Pine Family
     case rosePineMain = "Rosé Pine Main"
@@ -131,10 +134,12 @@ public enum AppThemeID: String, CaseIterable {
     // 18. Shades of Purple Family
     case shadesOfPurpleSuperDark = "Shades of Purple Super Dark"
     case shadesOfPurpleClassic = "Shades of Purple Classic"
+    case shadesOfPurpleLight = "Shades of Purple Light"
 
     // 19. Poimandres Family
     case poimandresDark = "Poimandres Dark"
     case poimandresStorm = "Poimandres Storm"
+    case poimandresLight = "Poimandres Light"
 
     // 20. Horizon Family
     case horizonDark = "Horizon Dark"
@@ -143,6 +148,7 @@ public enum AppThemeID: String, CaseIterable {
     // 21. Andromeda Family
     case andromedaDark = "Andromeda Dark"
     case andromedaBordered = "Andromeda Bordered"
+    case andromedaLight = "Andromeda Light"
 
     // 22. Nightfox Family
     case nightfoxDark = "Nightfox Dark"
@@ -152,6 +158,7 @@ public enum AppThemeID: String, CaseIterable {
     // 23. Cobalt2 Family
     case cobalt2Classic = "Cobalt2 Classic"
     case cobalt2Bright = "Cobalt2 Bright"
+    case cobalt2Light = "Cobalt2 Light"
 
     // 24. Alabaster Family
     case alabasterDark = "Alabaster Dark"
@@ -168,7 +175,7 @@ public enum AppThemeID: String, CaseIterable {
         switch self {
         case .catppuccinMocha, .catppuccinMacchiato, .catppuccinFrappe, .catppuccinLatte:
             return "Catppuccin"
-        case .dracula, .draculaSoft, .draculaAlucard:
+        case .dracula, .draculaSoft, .draculaAlucard, .draculaLight:
             return "Dracula"
         case .tokyoNight, .tokyoNightStorm, .tokyoNightLight:
             return "Tokyo Night"
@@ -180,9 +187,9 @@ public enum AppThemeID: String, CaseIterable {
             return "Gruvbox"
         case .solarizedDark, .solarizedLight:
             return "Solarized"
-        case .gitHubDark, .gitHubDarkDimmed, .gitHubLight:
+        case .gitHubDark, .gitHubDarkDimmed, .gitHubLight, .gitHubLightHighContrast:
             return "GitHub"
-        case .monokaiClassic, .monokaiPro, .monokaiCharcoal:
+        case .monokaiClassic, .monokaiPro, .monokaiCharcoal, .monokaiLight:
             return "Monokai"
         case .rosePineMain, .rosePineMoon, .rosePineDawn:
             return "Rosé Pine"
@@ -200,17 +207,17 @@ public enum AppThemeID: String, CaseIterable {
             return "SynthWave '84"
         case .cyberpunk2077, .cyberpunkScarlet:
             return "Cyberpunk"
-        case .shadesOfPurpleSuperDark, .shadesOfPurpleClassic:
+        case .shadesOfPurpleSuperDark, .shadesOfPurpleClassic, .shadesOfPurpleLight:
             return "Shades of Purple"
-        case .poimandresDark, .poimandresStorm:
+        case .poimandresDark, .poimandresStorm, .poimandresLight:
             return "Poimandres"
         case .horizonDark, .horizonBright:
             return "Horizon"
-        case .andromedaDark, .andromedaBordered:
+        case .andromedaDark, .andromedaBordered, .andromedaLight:
             return "Andromeda"
         case .nightfoxDark, .duskfox, .dawnfox:
             return "Nightfox"
-        case .cobalt2Classic, .cobalt2Bright:
+        case .cobalt2Classic, .cobalt2Bright, .cobalt2Light:
             return "Cobalt2"
         case .alabasterDark, .alabasterLight:
             return "Alabaster"
@@ -229,6 +236,7 @@ public enum AppThemeID: String, CaseIterable {
         case .dracula: return "Dracula Official"
         case .draculaSoft: return "Dracula Soft"
         case .draculaAlucard: return "Dracula Alucard"
+        case .draculaLight: return "Dracula Light"
 
         case .tokyoNight: return "Tokyo Night (Dark)"
         case .tokyoNightStorm: return "Tokyo Night Storm"
@@ -252,10 +260,12 @@ public enum AppThemeID: String, CaseIterable {
         case .gitHubDark: return "GitHub Dark"
         case .gitHubDarkDimmed: return "GitHub Dark Dimmed"
         case .gitHubLight: return "GitHub Light"
+        case .gitHubLightHighContrast: return "GitHub Light High Contrast (WCAG AAA)"
 
         case .monokaiClassic: return "Monokai Classic"
         case .monokaiPro: return "Monokai Pro"
         case .monokaiCharcoal: return "Monokai Charcoal"
+        case .monokaiLight: return "Monokai Light"
 
         case .rosePineMain: return "Rosé Pine Main"
         case .rosePineMoon: return "Rosé Pine Moon"
@@ -288,15 +298,18 @@ public enum AppThemeID: String, CaseIterable {
 
         case .shadesOfPurpleSuperDark: return "Shades of Purple Super Dark"
         case .shadesOfPurpleClassic: return "Shades of Purple Classic"
+        case .shadesOfPurpleLight: return "Shades of Purple Light"
 
         case .poimandresDark: return "Poimandres Dark"
         case .poimandresStorm: return "Poimandres Storm"
+        case .poimandresLight: return "Poimandres Light (White)"
 
         case .horizonDark: return "Horizon Dark"
         case .horizonBright: return "Horizon Bright (Light)"
 
         case .andromedaDark: return "Andromeda Dark"
         case .andromedaBordered: return "Andromeda Bordered"
+        case .andromedaLight: return "Andromeda Light"
 
         case .nightfoxDark: return "Nightfox Dark"
         case .duskfox: return "Duskfox"
@@ -304,6 +317,7 @@ public enum AppThemeID: String, CaseIterable {
 
         case .cobalt2Classic: return "Cobalt2 Classic"
         case .cobalt2Bright: return "Cobalt2 Bright"
+        case .cobalt2Light: return "Cobalt2 Light (Blueprint)"
 
         case .alabasterDark: return "Alabaster Dark"
         case .alabasterLight: return "Alabaster Light"
@@ -522,6 +536,16 @@ public struct SwiftThemes {
                 net: "#7ee5fa", sub: "#b084f4", host: "#42f06f", sep: "#5a668e",
                 cgnFg: "#f5a75b", resFg: "#f068b5"
             )
+        case .draculaLight:
+            return create(
+                id: id, isDark: false,
+                win: "#f8f8f2", card: "#ffffff", border: "#e2e8f0",
+                tbl: "#ffffff", tblAlt: "#f4f4f7", hdr: "#e2e8f0",
+                txtPri: "#282a36", txtSec: "#6272a4",
+                cyan: "#0097a7", blue: "#7c4dff",
+                net: "#0097a7", sub: "#7c4dff", host: "#2e7d32", sep: "#6272a4",
+                cgnFg: "#e65100", resFg: "#c2185b"
+            )
 
         // MARK: 3. Tokyo Night
         case .tokyoNight:
@@ -704,6 +728,16 @@ public struct SwiftThemes {
                 net: "#0550ae", sub: "#8250df", host: "#1a7f37", sep: "#8c959f",
                 cgnFg: "#9a6700", resFg: "#cf222e"
             )
+        case .gitHubLightHighContrast:
+            return create(
+                id: id, isDark: false,
+                win: "#ffffff", card: "#ffffff", border: "#24292f",
+                tbl: "#ffffff", tblAlt: "#f6f8fa", hdr: "#24292f",
+                txtPri: "#010409", txtSec: "#24292f",
+                cyan: "#0550ae", blue: "#0969da",
+                net: "#0550ae", sub: "#6639ba", host: "#116329", sep: "#57606a",
+                cgnFg: "#9a6700", resFg: "#cf222e"
+            )
 
         // MARK: 9. Monokai
         case .monokaiClassic:
@@ -735,6 +769,16 @@ public struct SwiftThemes {
                 cyan: "#62c4d4", blue: "#9788d9",
                 net: "#62c4d4", sub: "#ea5077", host: "#92c462", sep: "#636164",
                 cgnFg: "#e08554", resFg: "#9788d9"
+            )
+        case .monokaiLight:
+            return create(
+                id: id, isDark: false,
+                win: "#f7f7f7", card: "#ffffff", border: "#e0e0e0",
+                tbl: "#ffffff", tblAlt: "#f0f0f0", hdr: "#e0e0e0",
+                txtPri: "#272822", txtSec: "#75715e",
+                cyan: "#00897b", blue: "#0d47a1",
+                net: "#00897b", sub: "#8e24aa", host: "#2e7d32", sep: "#75715e",
+                cgnFg: "#ef6c00", resFg: "#d81b60"
             )
 
         // MARK: 10. Rosé Pine
@@ -984,6 +1028,16 @@ public struct SwiftThemes {
                 net: "#79c0ff", sub: "#ff628c", host: "#fad000", sep: "#5d579e",
                 cgnFg: "#ff9d00", resFg: "#b362ff"
             )
+        case .shadesOfPurpleLight:
+            return create(
+                id: id, isDark: false,
+                win: "#f6f0ff", card: "#ffffff", border: "#e5dbf7",
+                tbl: "#ffffff", tblAlt: "#f9f5ff", hdr: "#e5dbf7",
+                txtPri: "#2d1354", txtSec: "#6c5ce7",
+                cyan: "#00b894", blue: "#4d21fc",
+                net: "#0984e3", sub: "#6c5ce7", host: "#00b894", sep: "#a29bfe",
+                cgnFg: "#e17055", resFg: "#d63031"
+            )
 
         // MARK: 19. Poimandres
         case .poimandresDark:
@@ -1005,6 +1059,16 @@ public struct SwiftThemes {
                 cyan: "#5de4c7", blue: "#89ddff",
                 net: "#89ddff", sub: "#e07aa9", host: "#5de4c7", sep: "#49506b",
                 cgnFg: "#fff4aa", resFg: "#e07aa9"
+            )
+        case .poimandresLight:
+            return create(
+                id: id, isDark: false,
+                win: "#f4f6f8", card: "#ffffff", border: "#e1e4e8",
+                tbl: "#ffffff", tblAlt: "#f8fafc", hdr: "#e1e4e8",
+                txtPri: "#1b1e28", txtSec: "#506477",
+                cyan: "#2188ff", blue: "#3e6ee8",
+                net: "#1f6feb", sub: "#8957e5", host: "#2ea043", sep: "#506477",
+                cgnFg: "#d29922", resFg: "#f85149"
             )
 
         // MARK: 20. Horizon
@@ -1049,6 +1113,16 @@ public struct SwiftThemes {
                 cyan: "#00e8c6", blue: "#00d4ff",
                 net: "#00e8c6", sub: "#ff00aa", host: "#98e024", sep: "#545b6e",
                 cgnFg: "#ffe66d", resFg: "#f92672"
+            )
+        case .andromedaLight:
+            return create(
+                id: id, isDark: false,
+                win: "#f7f7f8", card: "#ffffff", border: "#e0e1e6",
+                tbl: "#ffffff", tblAlt: "#f1f2f6", hdr: "#e0e1e6",
+                txtPri: "#1e2029", txtSec: "#747785",
+                cyan: "#0099b8", blue: "#1e78ff",
+                net: "#0099b8", sub: "#8a44c8", host: "#00a854", sep: "#747785",
+                cgnFg: "#f08c00", resFg: "#e03131"
             )
 
         // MARK: 22. Nightfox
@@ -1103,6 +1177,16 @@ public struct SwiftThemes {
                 cyan: "#1fa0ff", blue: "#ffc600",
                 net: "#1fa0ff", sub: "#ff628c", host: "#3cd070", sep: "#456a85",
                 cgnFg: "#ffb800", resFg: "#ff628c"
+            )
+        case .cobalt2Light:
+            return create(
+                id: id, isDark: false,
+                win: "#edf3fa", card: "#ffffff", border: "#d0e1f5",
+                tbl: "#ffffff", tblAlt: "#f4f8fd", hdr: "#d0e1f5",
+                txtPri: "#193549", txtSec: "#4f7899",
+                cyan: "#0088cc", blue: "#0066cc",
+                net: "#0088cc", sub: "#5c39b5", host: "#2b8a3e", sep: "#4f7899",
+                cgnFg: "#d97706", resFg: "#dc2626"
             )
 
         // MARK: 24. Alabaster

@@ -12,16 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Premier 25 Developer Theme Families Engine (`ThemeManager.swift`)**:
-  - Expanded from 14 presets to a comprehensive suite of **25 iconic developer theme families (2020–2026 Trends)** with authentic, calibrated color palettes:
+  - Expanded from 14 presets to a comprehensive suite of **25 iconic developer theme families (2020–2026 Trends)** with authentic, calibrated color palettes, including 7 new standard Light Mode models conforming strictly to official developer palette specifications and WCAG 2.2 AA/AAA high contrast requirements:
     1. **Catppuccin**: Mocha (Default Dark), Macchiato, Frappé, Latte (Light).
-    2. **Dracula**: Official, Soft, Alucard.
+    2. **Dracula**: Official Dark, Soft Dark, Alucard Day (Light).
     3. **Tokyo Night**: Dark, Storm, Light.
     4. **Nord**: Dark, Polar, Light.
     5. **One Dark**: One Dark Pro, One Dark Vivid, One Light.
     6. **Gruvbox**: Dark Hard, Dark Medium, Light.
     7. **Solarized**: Dark & Light precision scientific palettes.
-    8. **GitHub**: Dark, Dark Dimmed, Light.
-    9. **Monokai**: Classic, Pro, Charcoal.
+    8. **GitHub**: Dark, Dark Dimmed, Light, High Contrast (WCAG AAA).
+    9. **Monokai**: Classic Dark, Pro, Charcoal, Monokai Light.
     10. **Rosé Pine**: Main, Moon, Dawn (Light).
     11. **Ayu**: Dark, Mirage, Light.
     12. **Kanagawa**: Wave, Dragon, Lotus (Light).
@@ -30,15 +30,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     15. **Material**: Palenight, Deep Ocean, Lighter.
     16. **SynthWave '84**: Glow & Classic retro cyberpunk.
     17. **Cyberpunk**: Cyberpunk 2077 & Scarlet.
-    18. **Shades of Purple**: Super Dark & Classic.
-    19. **Poimandres**: Dark & Storm.
-    20. **Horizon**: Dark & Bright.
-    21. **Andromeda**: Dark & Bordered.
-    22. **Nightfox**: Nightfox Dark, Duskfox, Dawnfox.
-    23. **Cobalt2**: Classic & Bright.
+    18. **Shades of Purple**: Super Dark, Classic, Shades of Purple Light.
+    19. **Poimandres**: Dark, Storm, Poimandres Light (White).
+    20. **Horizon**: Dark & Bright (Light).
+    21. **Andromeda**: Dark, Bordered, Andromeda Light.
+    22. **Nightfox**: Nightfox Dark, Duskfox, Dawnfox (Light).
+    23. **Cobalt2**: Classic Dark, Bright Dark, Cobalt2 Light (Blueprint).
     24. **Alabaster**: Dark & Light minimal clarity.
-    25. **Tomorrow**: Night, Night Blue, Night Eighties, Night Bright, Day.
+    25. **Tomorrow**: Night, Night Blue, Night Eighties, Night Bright, Tomorrow Day (Light).
   - Implemented clean hierarchical macOS Menu Bar submenu navigation (`Theme >> Family >> Subthemes`) with real-time bidirectional checkmark indicators and persistent `UserDefaults` storage.
+- **Complete 13-Pillar Defensive Hardening & 100% Elimination of Force Unwraps**:
+  - Executed a rigorous 13-pillar code review across all repository files (`IPSubnetcalc.swift`, `SubnetCalcAppDelegate.swift`, `ThemeManager.swift`, `AddrHistory*`, `PrintView*`, `.github/workflows/*`).
+  - **100% Force Unwrap Elimination**: Systematically refactored all executable code, replacing force unwraps (`!`) with safe `guard let`, optional chaining, and nil-coalescing fallbacks across binary/hexadecimal mapping, subnet ID/broadcast calculations, export actions (`exportFLSM`, `exportClipboard`), dark mode menu controls, and Core Data persistence.
+  - **Hardened IPv6 Validation**: Refactored `validateIPv6` to safely iterate segments with collection enumerators, eliminating potential range traps (`0...(count - 1)`), unwrap crashes, and invalid character acceptance.
+  - **Zero SwiftLint Violations**: Verified with `swiftlint lint --strict` resulting in **0 violations, 0 serious** across all files.
+  - **Zero Compiler Errors & Warnings**: Verified with native `swiftc -typecheck` compiling cleanly with exit code 0.
 - **Bespoke Modern & Informative About Window (`AboutWindowController`)**:
   - Replaced Apple's standard plain dialog with an elegant, modern, and informative native AppKit About Window (540x500).
   - Features styled 68x68 app icon, bold typography, version badges (`v2.6.2 (Build 14)`, `Universal 2`, `macOS 10.15+`, `GPL-2.0`).
