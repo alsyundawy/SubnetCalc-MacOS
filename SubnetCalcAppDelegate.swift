@@ -1,8 +1,23 @@
 //
 //  SubnetCalcAppDelegate.swift
-//  SubnetCalc
+//  SubnetCalc for macOS
 //
-//  SubnetCalc v2.6.2
+//  Version: v2.6.2 (Universal 2: Apple Silicon ARM64 & Intel Core x86_64)
+//  Date & Time: 2026-10-07 05:25:30 +07:00
+//
+//  Original Creator & Lead Developer:
+//    Julien Mulot
+//    Website: https://subnetcalc.mulot.org
+//    GitHub:  https://github.com/mulot
+//
+//  Maintainer, Modernization & Security Engineering:
+//    Harry Dertin Sutisna Alsyundawy (@alsyundawy)
+//    Company: ALSYUNDAWY IT SOLUTION
+//    Website: https://alsyundawy.com
+//    Email:   alsyundawy@gmail.com
+//    GitHub:  https://github.com/alsyundawy
+//
+//  License: GNU General Public License v2.0 (GPL-2.0)
 //
 
 import Foundation
@@ -41,6 +56,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     //*******************
     @IBOutlet var rfcClassificationBadge: NSTextField?
     @IBOutlet var cloudProfilePopup: NSPopUpButton?
+    @IBOutlet var aboutIconButton: NSButton?
     @IBOutlet var vlsmEfficiencyLabel: NSTextField?
     @IBOutlet var vlsmEfficiencyBar: NSProgressIndicator?
     private var currentCloudProfile: CloudProfile = .standard
@@ -2050,6 +2066,10 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             classBitMap.attributedStringValue = ThemeManager.formatColorCodedBitMap(classBitMap.stringValue)
         }
 
+        if let btn = aboutIconButton {
+            btn.contentTintColor = ThemeManager.current.accentCyan
+        }
+
         AboutWindowController.shared.updateColors()
     }
 
@@ -2110,6 +2130,31 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             }
         }
         exportButton.frame = NSRect(x: 720, y: 652, width: 46, height: 25)
+
+        // Setup small About button/icon to trigger About Window directly from the UI header
+        if aboutIconButton == nil, let contentView = window.contentView {
+            let aboutBtn = NSButton(frame: NSRect(x: 682, y: 652, width: 28, height: 25))
+            aboutBtn.bezelStyle = .texturedRounded
+            aboutBtn.isBordered = true
+            aboutBtn.toolTip = "About SubnetCalc (v2.6.2)"
+            if #available(macOS 11.0, *), let img = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "About SubnetCalc") {
+                aboutBtn.image = img
+                aboutBtn.title = ""
+                aboutBtn.imagePosition = .imageOnly
+            } else if let img = NSImage(named: NSImage.infoName) {
+                aboutBtn.image = img
+                aboutBtn.title = ""
+                aboutBtn.imagePosition = .imageOnly
+            } else {
+                aboutBtn.title = "ⓘ"
+                aboutBtn.font = NSFont.systemFont(ofSize: 13, weight: .bold)
+            }
+            aboutBtn.contentTintColor = ThemeManager.current.accentCyan
+            aboutBtn.target = self
+            aboutBtn.action = #selector(orderFrontStandardAboutPanel(_:))
+            contentView.addSubview(aboutBtn)
+            self.aboutIconButton = aboutBtn
+        }
 
         // 4. Setup VLSM Efficiency Analytics in VLSM Tab
         if vlsmEfficiencyLabel == nil && tabView.numberOfTabViewItems > 4 {

@@ -45,6 +45,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Hardened IPv6 Validation**: Refactored `validateIPv6` to safely iterate segments with collection enumerators, eliminating potential range traps (`0...(count - 1)`), unwrap crashes, and invalid character acceptance.
   - **Zero SwiftLint Violations**: Verified with `swiftlint lint --strict` resulting in **0 violations, 0 serious** across all files.
   - **Zero Compiler Errors & Warnings**: Verified with native `swiftc -typecheck` compiling cleanly with exit code 0.
+- **Interactive Header About Button (`aboutIconButton`)**:
+  - Integrated a dedicated, sleek info button (`info.circle` symbol on macOS 11.0+ / `NSImage.infoName` / `ⓘ` on macOS 10.15) positioned directly beside the Export button at `x: 682, y: 652, width: 28, height: 25`.
+  - Automatically tinted with the active theme's cyan accent (`ThemeManager.current.accentCyan`), providing immediate one-click visual access to the bespoke About Window from the main UI header.
+- **Standardized Enterprise Code Headers Across All Scripts**:
+  - Enriched every Swift and Objective-C source file (`IPSubnetcalc.swift`, `SubnetCalcAppDelegate.swift`, `ThemeManager.swift`, `AddrHistory*`, `PrintView*`) with comprehensive header blocks documenting:
+    - File Name, Target Architecture (Universal 2: Apple Silicon ARM64 & Intel Core x86_64), Version (`v2.6.2`), and Build Timestamp.
+    - Original Creator & Lead Developer contact info (Julien Mulot: website & GitHub).
+    - Maintainer & Security Engineering contact info (Harry Dertin Sutisna Alsyundawy: company, website, email, GitHub).
+    - GNU General Public License v2.0 (GPL-2.0) declarations.
 - **Bespoke Modern & Informative About Window (`AboutWindowController`)**:
   - Replaced Apple's standard plain dialog with an elegant, modern, and informative native AppKit About Window (540x500).
   - Features styled 68x68 app icon, bold typography, version badges (`v2.6.2 (Build 14)`, `Universal 2`, `macOS 10.15+`, `GPL-2.0`).

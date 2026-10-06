@@ -241,3 +241,12 @@ Following empirical visual validation, user design feedback, and integration of 
 7. **Intelligent IPv6 RFC Classification**:
    - Expanded `IPSubnetCalc` with `classifyIPv6Address` identifying RFC 4193 ULA (`fc00::/7`), RFC 4291 Link-Local (`fe80::/10`), Loopback (`::1`), Multicast (`ff00::/8`), Documentation (`2001:db8::/32`), and Global Unicast.
    - Upgraded status pill badges to display concise labels (`ULA`, `Private`, `Public`, `CGNAT`, `Loopback`, `Link-Local`, `Multicast`, `Reserved`) with full RFC descriptions in interactive tooltips, resolving the previous bug where IPv6 ULA addresses defaulted to "Public".
+
+8. **Direct Top-Bar About Icon Button (`aboutIconButton`)**:
+   - Added a dedicated, native `NSButton` info trigger directly positioned adjacent to the Export button (`x: 682, y: 652, width: 28, height: 25`).
+   - Uses native `info.circle` symbol on macOS 11+ with fallback to `NSImage.infoName` and `ⓘ` on macOS 10.15 Catalina.
+   - Dynamic tinting synchronizes `contentTintColor` with `ThemeManager.current.accentCyan` across all 25 developer theme families, triggering the custom About Window instantly from the primary user interface.
+
+9. **Standardized Enterprise Script Headers & Author Attribution**:
+   - Applied uniform developer and maintainer header comments across every Swift and Objective-C file in the project (`IPSubnetcalc.swift`, `SubnetCalcAppDelegate.swift`, `ThemeManager.swift`, `AddrHistory*`, `PrintView*`).
+   - Standardized fields: Target Architecture (Apple Universal 2 Binary), Version (`v2.6.2`), Build Timestamp (`2026-10-07 05:25:30 +07:00`), Original Creator info (Julien Mulot), Maintainer contact (Harry Dertin Sutisna Alsyundawy / ALSYUNDAWY IT SOLUTION), and GPL-2.0 license headers.
