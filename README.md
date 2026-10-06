@@ -275,12 +275,13 @@ ditto -c -k --sequesterRsrc --keepParent \
 
 ## Changelog
 
-### [v2.6.2] — Modern 14-Theme Engine, Multi-Cloud Subnetting & Decoupled CI/CD
+### [v2.6.2] — Premier 25-Theme Engine, Multi-Cloud Subnetting & Decoupled CI/CD
 
-- **ActuallyTaylor/Swift-Themes 14-Theme Engine (`ThemeManager.swift`)**:
-  - Full suite of 14 themes across Catppuccin (Mocha default), Dracula, Gruvbox, Solarized, and Tomorrow with Menu Bar switcher and `UserDefaults` persistence.
+- **Premier 25 Developer Theme Families Engine (`ThemeManager.swift`)**:
+  - Full suite of 25 developer theme families (2020–2026 Trends): Catppuccin, Dracula, Tokyo Night, Nord, One Dark, Gruvbox, Solarized, GitHub, Monokai, Rosé Pine, Ayu, Kanagawa, Everforest, Night Owl, Material, SynthWave '84, Cyberpunk, Shades of Purple, Poimandres, Horizon, Andromeda, Nightfox, Cobalt2, Alabaster, and Tomorrow.
+  - Hierarchical macOS Menu Bar switcher (`Theme >> Family >> Subthemes`) with real-time checkmark synchronization and persistent `UserDefaults` storage.
 - **Bespoke Modern About Window (`AboutWindowController`)**:
-  - Native 540×500 AppKit About panel with segmented view controls (Capabilities, Themes, Credits & Lineage) and interactive links.
+  - Native 540×500 AppKit About panel with segmented view controls (Capabilities, Themes [25 Families], Credits & Lineage) and interactive links.
 - **Decoupled CI & Release Runner Workflows (`build.yml` & `release.yml`)**:
   - Separated CI build runner and release builder workflows modeled after `NotepadNext-MacOS`, eliminating duplicate runs and duplicate release assets.
 - **Canonical `SubnetCalc.app` Distribution Invariant**:

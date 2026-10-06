@@ -11,19 +11,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **ActuallyTaylor/Swift-Themes 14-Theme Engine (`ThemeManager.swift`)**:
-  - Fully integrated all color palettes from [`ActuallyTaylor/Swift-Themes`](https://github.com/ActuallyTaylor/Swift-Themes).
-  - Supported 14 standard presets across 5 theme families:
-    - **Catppuccin**: Mocha (Default Dark), Macchiato, Frappé, Latte (Light).
-    - **Dracula**: Official high-contrast vampire dark palette.
-    - **Gruvbox**: Gruvbox Dark & Gruvbox Light retro developer palettes.
-    - **Solarized**: Solarized Dark & Solarized Light precision palettes.
-    - **Tomorrow**: Tomorrow Night Blue, Tomorrow Night, Tomorrow Night Eighties, Tomorrow Night Bright, Tomorrow Day.
-  - Added native dynamic **Theme** menu in macOS Menu Bar with real-time checkmarks, persistent theme selection saved to `UserDefaults`, and dynamic UI restyling across windows, cards, tables, bit maps, and badges.
+- **Premier 25 Developer Theme Families Engine (`ThemeManager.swift`)**:
+  - Expanded from 14 presets to a comprehensive suite of **25 iconic developer theme families (2020–2026 Trends)** with authentic, calibrated color palettes:
+    1. **Catppuccin**: Mocha (Default Dark), Macchiato, Frappé, Latte (Light).
+    2. **Dracula**: Official, Soft, Alucard.
+    3. **Tokyo Night**: Dark, Storm, Light.
+    4. **Nord**: Dark, Polar, Light.
+    5. **One Dark**: One Dark Pro, One Dark Vivid, One Light.
+    6. **Gruvbox**: Dark Hard, Dark Medium, Light.
+    7. **Solarized**: Dark & Light precision scientific palettes.
+    8. **GitHub**: Dark, Dark Dimmed, Light.
+    9. **Monokai**: Classic, Pro, Charcoal.
+    10. **Rosé Pine**: Main, Moon, Dawn (Light).
+    11. **Ayu**: Dark, Mirage, Light.
+    12. **Kanagawa**: Wave, Dragon, Lotus (Light).
+    13. **Everforest**: Dark Hard, Dark Medium, Light.
+    14. **Night Owl**: Dark & Light Owl.
+    15. **Material**: Palenight, Deep Ocean, Lighter.
+    16. **SynthWave '84**: Glow & Classic retro cyberpunk.
+    17. **Cyberpunk**: Cyberpunk 2077 & Scarlet.
+    18. **Shades of Purple**: Super Dark & Classic.
+    19. **Poimandres**: Dark & Storm.
+    20. **Horizon**: Dark & Bright.
+    21. **Andromeda**: Dark & Bordered.
+    22. **Nightfox**: Nightfox Dark, Duskfox, Dawnfox.
+    23. **Cobalt2**: Classic & Bright.
+    24. **Alabaster**: Dark & Light minimal clarity.
+    25. **Tomorrow**: Night, Night Blue, Night Eighties, Night Bright, Day.
+  - Implemented clean hierarchical macOS Menu Bar submenu navigation (`Theme >> Family >> Subthemes`) with real-time bidirectional checkmark indicators and persistent `UserDefaults` storage.
 - **Bespoke Modern & Informative About Window (`AboutWindowController`)**:
   - Replaced Apple's standard plain dialog with an elegant, modern, and informative native AppKit About Window (540x500).
   - Features styled 68x68 app icon, bold typography, version badges (`v2.6.2 (Build 14)`, `Universal 2`, `macOS 10.15+`, `GPL-2.0`).
-  - Interactive segmented control switching between **Capabilities**, **Themes**, and **Credits & Lineage** (honoring original author Julien Mulot, maintainer Harry Dertin Sutisna Alsyundawy, algorithmic oracle Dr. Thomas Dreibholz, and themes author Taylor Lindsey).
+  - Interactive segmented control switching between **Capabilities**, **Themes (25 Families)**, and **Credits & Lineage** (honoring original author Julien Mulot, maintainer Harry Dertin Sutisna Alsyundawy, algorithmic oracle Dr. Thomas Dreibholz, and themes author Taylor Lindsey).
   - Direct action buttons opening the GitHub repository, maintainer website (`https://alsyundawy.com`), and dismiss controls.
 - **Decoupled CI & Release Runner Workflows (`build.yml` & `release.yml`)**:
   - Separated builder runners into two specialized workflows modeled after [`NotepadNext-MacOS`](https://github.com/alsyundawy/NotepadNext-MacOS):

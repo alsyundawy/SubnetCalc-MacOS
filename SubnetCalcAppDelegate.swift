@@ -253,20 +253,19 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      Generate the Binary Map, Bits Maps and Hexa Map of the current IP
      */
     private func doAddressMap() {
-        if (ipsc != nil) {
-            self.initClassInfos(ipsc!.netClass())
-            let bitPattern = ipsc!.bitMap(dotted: dotted.state == NSControl.StateValue.on)
-            classBitMap.attributedStringValue = ThemeManager.formatColorCodedBitMap(bitPattern)
-            if (dotted.state == NSControl.StateValue.on) {
-                classBinaryMap.stringValue = ipsc!.binaryMap(dotted: true)
-                classHexaMap.stringValue = ipsc!.hexaMap(dotted: true)
-            }
-            else {
-                classBinaryMap.stringValue = ipsc!.binaryMap(dotted: false)
-                classHexaMap.stringValue = ipsc!.hexaMap(dotted: false)
-            }
-            updateRFCClassification()
+        guard let ipsc = self.ipsc else { return }
+        self.initClassInfos(ipsc.netClass())
+        let bitPattern = ipsc.bitMap(dotted: dotted.state == NSControl.StateValue.on)
+        classBitMap.attributedStringValue = ThemeManager.formatColorCodedBitMap(bitPattern)
+        if (dotted.state == NSControl.StateValue.on) {
+            classBinaryMap.stringValue = ipsc.binaryMap(dotted: true)
+            classHexaMap.stringValue = ipsc.hexaMap(dotted: true)
         }
+        else {
+            classBinaryMap.stringValue = ipsc.binaryMap(dotted: false)
+            classHexaMap.stringValue = ipsc.hexaMap(dotted: false)
+        }
+        updateRFCClassification()
     }
 
     private func updateRFCClassification() {
@@ -287,26 +286,25 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     private func doSubnet()
     {
-        if (ipsc != nil) {
-            subnetBitsCombo.selectItem(withObjectValue: String(ipsc!.subnetBits()))
-            maskBitsCombo.selectItem(withObjectValue: String(ipsc!.maskBits))
-            maxSubnetsCombo.selectItem(withObjectValue: String(ipsc!.maxSubnets()))
-            maxHostsBySubnetCombo.selectItem(withObjectValue: String(ipsc!.maxHosts()))
-            if (maxHostsBySubnetCombo.indexOfSelectedItem == -1) {
-                maxHostsBySubnetCombo.stringValue = String(ipsc!.maxHosts())
-            }
-            subnetId.stringValue = ipsc!.subnetId()
-            subnetBroadcast.stringValue = ipsc!.subnetBroadcast()
-            subnetHostAddrRange.stringValue = ipsc!.subnetRange(profile: currentCloudProfile)
-            if currentCloudProfile != .standard {
-                maxHostsBySubnetCombo.stringValue = ipsc!.maxHosts(profile: currentCloudProfile)
-            }
-            if (wildcard.state == NSControl.StateValue.on) {
-                subnetMaskCombo.selectItem(withObjectValue: ipsc!.wildcardMask())
-            }
-            else {
-                subnetMaskCombo.selectItem(withObjectValue: ipsc!.subnetMask())
-            }
+        guard let ipsc = self.ipsc else { return }
+        subnetBitsCombo.selectItem(withObjectValue: String(ipsc.subnetBits()))
+        maskBitsCombo.selectItem(withObjectValue: String(ipsc.maskBits))
+        maxSubnetsCombo.selectItem(withObjectValue: String(ipsc.maxSubnets()))
+        maxHostsBySubnetCombo.selectItem(withObjectValue: String(ipsc.maxHosts()))
+        if (maxHostsBySubnetCombo.indexOfSelectedItem == -1) {
+            maxHostsBySubnetCombo.stringValue = String(ipsc.maxHosts())
+        }
+        subnetId.stringValue = ipsc.subnetId()
+        subnetBroadcast.stringValue = ipsc.subnetBroadcast()
+        subnetHostAddrRange.stringValue = ipsc.subnetRange(profile: currentCloudProfile)
+        if currentCloudProfile != .standard {
+            maxHostsBySubnetCombo.stringValue = ipsc.maxHosts(profile: currentCloudProfile)
+        }
+        if (wildcard.state == NSControl.StateValue.on) {
+            subnetMaskCombo.selectItem(withObjectValue: ipsc.wildcardMask())
+        }
+        else {
+            subnetMaskCombo.selectItem(withObjectValue: ipsc.subnetMask())
         }
     }
 
@@ -315,12 +313,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     private func doSubnetHost()
     {
-        if (ipsc != nil) {
-            bitsOnSlide.stringValue = String(ipsc!.maskBits)
-            subnetBitsSlide.intValue = Int32(ipsc!.maskBits)
-            self.bitsOnSlidePos()
-            subnetsHostsView.reloadData()
-        }
+        guard let ipsc = self.ipsc else { return }
+        bitsOnSlide.stringValue = String(ipsc.maskBits)
+        subnetBitsSlide.intValue = Int32(ipsc.maskBits)
+        self.bitsOnSlidePos()
+        subnetsHostsView.reloadData()
     }
 
     /**
@@ -328,22 +325,21 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     private func doFLSM()
     {
-        if (ipsc != nil) {
-            maskBitsFLSMCombo.selectItem(withObjectValue: String(ipsc!.maskBits))
-            if (ipsc!.maskBits <= 29) {
-                slideFLSM.numberOfTickMarks = (30 - ipsc!.maskBits)
-                slideFLSM.maxValue = Double(30 - ipsc!.maskBits)
-                self.maxSubnetsFLSM.stringValue = NSDecimalNumber(decimal: (pow(2, slideFLSM.integerValue))).stringValue
-                self.maxHostsBySubnetFLSM.stringValue = NSDecimalNumber(decimal: (pow(2, (32 - (ipsc!.maskBits + slideFLSM.integerValue)))) - 2).stringValue
-                self.maxHostsFLSM.stringValue = NSDecimalNumber(decimal: ((pow(2, (32 - (ipsc!.maskBits + slideFLSM.integerValue)))) - 2) * (pow(2, slideFLSM.integerValue))).stringValue
-            }
-            else {
-                self.maxSubnetsFLSM.stringValue = ""
-                self.maxHostsBySubnetFLSM.stringValue = ""
-                self.maxHostsFLSM.stringValue = ""
-            }
-            viewFLSM.reloadData()
+        guard let ipsc = self.ipsc else { return }
+        maskBitsFLSMCombo.selectItem(withObjectValue: String(ipsc.maskBits))
+        if (ipsc.maskBits <= 29) {
+            slideFLSM.numberOfTickMarks = (30 - ipsc.maskBits)
+            slideFLSM.maxValue = Double(30 - ipsc.maskBits)
+            self.maxSubnetsFLSM.stringValue = NSDecimalNumber(decimal: (pow(2, slideFLSM.integerValue))).stringValue
+            self.maxHostsBySubnetFLSM.stringValue = NSDecimalNumber(decimal: (pow(2, (32 - (ipsc.maskBits + slideFLSM.integerValue)))) - 2).stringValue
+            self.maxHostsFLSM.stringValue = NSDecimalNumber(decimal: ((pow(2, (32 - (ipsc.maskBits + slideFLSM.integerValue)))) - 2) * (pow(2, slideFLSM.integerValue))).stringValue
         }
+        else {
+            self.maxSubnetsFLSM.stringValue = ""
+            self.maxHostsBySubnetFLSM.stringValue = ""
+            self.maxHostsFLSM.stringValue = ""
+        }
+        viewFLSM.reloadData()
     }
 
     /**
@@ -417,28 +413,26 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     private func doCIDR(maskbits: Int? = nil)
     {
-        if (ipsc != nil) {
-            if (maskbits == nil) {
-                supernetMaskBitsCombo.selectItem(withObjectValue: String(ipsc!.maskBits))
-                supernetMaskCombo.selectItem(withObjectValue: ipsc!.subnetMask())
-                supernetMaxSubnetsCombo.selectItem(withObjectValue: String(ipsc!.maxCIDRSubnets()))
-                supernetMaxAddr.selectItem(withObjectValue: String(ipsc!.maxHosts()))
-                supernetMaxCombo.selectItem(withObjectValue: String(ipsc!.maxCIDRSupernet()))
-                supernetRoute.stringValue = ipsc!.subnetId() + "/" + String(ipsc!.maskBits)
-                supernetAddrRange.stringValue = ipsc!.subnetCIDRRange()
+        guard let ipsc = self.ipsc else { return }
+        if let maskbits = maskbits {
+            if let ipscTmp = IPSubnetCalc(ipAddress: ipsc.ipv4Address, maskbits: maskbits) {
+                supernetMaskBitsCombo.selectItem(withObjectValue: String(ipscTmp.maskBits))
+                supernetMaskCombo.selectItem(withObjectValue: ipscTmp.subnetMask())
+                supernetMaxSubnetsCombo.selectItem(withObjectValue: String(ipscTmp.maxCIDRSubnets()))
+                supernetMaxAddr.selectItem(withObjectValue: String(ipscTmp.maxHosts()))
+                supernetMaxCombo.selectItem(withObjectValue: String(ipscTmp.maxCIDRSupernet()))
+                supernetRoute.stringValue = ipscTmp.subnetId() + "/" + String(ipscTmp.maskBits)
+                supernetAddrRange.stringValue = ipscTmp.subnetCIDRRange()
             }
-            else {
-                let ipsc_tmp = IPSubnetCalc(ipAddress: ipsc!.ipv4Address, maskbits: maskbits!)
-                if (ipsc_tmp != nil) {
-                    supernetMaskBitsCombo.selectItem(withObjectValue: String(ipsc_tmp!.maskBits))
-                    supernetMaskCombo.selectItem(withObjectValue: ipsc_tmp!.subnetMask())
-                    supernetMaxSubnetsCombo.selectItem(withObjectValue: String(ipsc_tmp!.maxCIDRSubnets()))
-                    supernetMaxAddr.selectItem(withObjectValue: String(ipsc_tmp!.maxHosts()))
-                    supernetMaxCombo.selectItem(withObjectValue: String(ipsc_tmp!.maxCIDRSupernet()))
-                    supernetRoute.stringValue = ipsc_tmp!.subnetId() + "/" + String(ipsc_tmp!.maskBits)
-                    supernetAddrRange.stringValue = ipsc_tmp!.subnetCIDRRange()
-                }
-            }
+        }
+        else {
+            supernetMaskBitsCombo.selectItem(withObjectValue: String(ipsc.maskBits))
+            supernetMaskCombo.selectItem(withObjectValue: ipsc.subnetMask())
+            supernetMaxSubnetsCombo.selectItem(withObjectValue: String(ipsc.maxCIDRSubnets()))
+            supernetMaxAddr.selectItem(withObjectValue: String(ipsc.maxHosts()))
+            supernetMaxCombo.selectItem(withObjectValue: String(ipsc.maxCIDRSupernet()))
+            supernetRoute.stringValue = ipsc.subnetId() + "/" + String(ipsc.maskBits)
+            supernetAddrRange.stringValue = ipsc.subnetCIDRRange()
         }
     }
 
@@ -1163,11 +1157,11 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
      */
     func tableView(_ tableView: NSTableView, setObjectValue object: Any?, for tableColumn: NSTableColumn?, row: Int)
     {
-        if (tableView == viewVLSM) {
-            if (tableColumn!.identifier.rawValue == "nameVLSMCol") {
-                //print("edit tableView Name VLSM: \(row) \(object as! String)")
-                subnetsVLSM[row].1 = object as! String
-            }
+        if tableView == viewVLSM,
+           let column = tableColumn, column.identifier.rawValue == "nameVLSMCol",
+           row >= 0, row < subnetsVLSM.count,
+           let str = object as? String {
+            subnetsVLSM[row].1 = str
         }
     }
 
@@ -1185,80 +1179,78 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?,
                    row: Int) -> Any?
     {
-        if (ipsc != nil) {
-            //print("Refresh TableView: \(String(describing: tableView.identifier))")
-            if (tableView == subnetsHostsView) {
-                let ipaddr: UInt32 = (((IPSubnetCalc.digitize(ipAddress: ipsc!.ipv4Address)! & ipsc!.classMask()) >> (32 - ipsc!.maskBits)) + UInt32(row)) << (32 - ipsc!.maskBits)
-                let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: ipsc!.maskBits)
-                //print("tableView Row: \(row) IP num : \(ipaddr) IP: \(IPSubnetCalc.digitize(ipAddress: ipaddr)) IP Subnet: \(ipsc_tmp!.subnetId())")
-                if (tableColumn != nil && ipsc_tmp != nil) {
-                    if (tableColumn!.identifier.rawValue == "numCol") {
-                        return (row + 1)
-                    }
-                    else if (tableColumn!.identifier.rawValue == "subnetCol") {
-                        return (ipsc_tmp!.subnetId())
-                    }
-                    else if (tableColumn!.identifier.rawValue == "rangeCol") {
-                        return (ipsc_tmp!.subnetRange())
-                    }
-                    else if (tableColumn!.identifier.rawValue == "broadcastCol") {
-                        return (ipsc_tmp!.subnetBroadcast())
+        guard let ipsc = self.ipsc else { return nil }
+
+        if (tableView == subnetsHostsView) {
+            guard let ipBits = IPSubnetCalc.digitize(ipAddress: ipsc.ipv4Address),
+                  let column = tableColumn else { return nil }
+            let shift = (32 - ipsc.maskBits)
+            let ipaddr: UInt32 = (((ipBits & ipsc.classMask()) >> shift) + UInt32(row)) << shift
+            guard let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: ipsc.maskBits) else { return nil }
+            let colId = column.identifier.rawValue
+            if (colId == "numCol") {
+                return (row + 1)
+            } else if (colId == "subnetCol") {
+                return ipscTmp.subnetId()
+            } else if (colId == "rangeCol") {
+                return ipscTmp.subnetRange()
+            } else if (colId == "broadcastCol") {
+                return ipscTmp.subnetBroadcast()
+            }
+        }
+        else if (tableView == viewFLSM) {
+            guard let ipBits = IPSubnetCalc.digitize(ipAddress: ipsc.ipv4Address),
+                  let maskBits = IPSubnetCalc.digitize(maskbits: ipsc.maskBits),
+                  let column = tableColumn else { return nil }
+            let baseShift = (32 - ipsc.maskBits)
+            var ipaddr: UInt32 = ((ipBits & maskBits) >> baseShift) << baseShift
+            let flsmMask = ipsc.maskBits + slideFLSM.integerValue
+            let flsmShift = (32 - flsmMask)
+            ipaddr = ((ipaddr >> flsmShift) + UInt32(row)) << flsmShift
+            guard let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: flsmMask) else { return nil }
+            let colId = column.identifier.rawValue
+            if (colId == "numFLSMCol") {
+                return (row + 1)
+            } else if (colId == "subnetFLSMCol") {
+                return ipscTmp.subnetId()
+            } else if (colId == "maskFLSMCol") {
+                return flsmMask
+            } else if (colId == "rangeFLSMCol") {
+                return ipscTmp.subnetRange()
+            } else if (colId == "broadcastFLSMCol") {
+                return ipscTmp.subnetBroadcast()
+            }
+        }
+        else if (tableView == viewVLSM) {
+            guard let column = tableColumn,
+                  let baseSubnet = IPSubnetCalc.digitize(ipAddress: ipsc.subnetId()),
+                  row >= 0, row < subnetsVLSM.count else { return nil }
+            let colId = column.identifier.rawValue
+            if colId == "numVLSMCol" {
+                return (row + 1)
+            }
+            var subnet = baseSubnet
+            if row > 0 {
+                for index in 0...(row - 1) {
+                    if let maskDig = IPSubnetCalc.digitize(maskbits: subnetsVLSM[index].0) {
+                        subnet = subnet + ~maskDig + 1
                     }
                 }
             }
-            else if (tableView == viewFLSM) {
-                //print("refresh View FLSM")
-                var ipaddr: UInt32 = ((IPSubnetCalc.digitize(ipAddress: ipsc!.ipv4Address)! & IPSubnetCalc.digitize(maskbits: ipsc!.maskBits)!) >> (32 - ipsc!.maskBits)) << (32 - ipsc!.maskBits)
-                ipaddr = (ipaddr >> (32 - (ipsc!.maskBits + slideFLSM.integerValue)) + UInt32(row)) << (32 - (ipsc!.maskBits + slideFLSM.integerValue))
-                let ipsc_tmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: ipaddr), maskbits: (ipsc!.maskBits + slideFLSM.integerValue))
-                if (tableColumn != nil && ipsc_tmp != nil) {
-                    if (tableColumn!.identifier.rawValue == "numFLSMCol") {
-                        return (row + 1)
-                    }
-                    else if (tableColumn!.identifier.rawValue == "subnetFLSMCol") {
-                        return (ipsc_tmp!.subnetId())
-                    }
-                    else if (tableColumn!.identifier.rawValue == "maskFLSMCol") {
-                        return (ipsc!.maskBits + slideFLSM.integerValue)
-                    }
-                    else if (tableColumn!.identifier.rawValue == "rangeFLSMCol") {
-                        return (ipsc_tmp!.subnetRange())
-                    }
-                    else if (tableColumn!.identifier.rawValue == "broadcastFLSMCol") {
-                        return (ipsc_tmp!.subnetBroadcast())
-                    }
-                }
-            }
-            else if (tableView == viewVLSM) {
-                if let column = tableColumn, let baseSubnet = IPSubnetCalc.digitize(ipAddress: ipsc!.subnetId()) {
-                    let colId = column.identifier.rawValue
-                    if colId == "numVLSMCol" {
-                        return (row + 1)
-                    }
-                    var subnet = baseSubnet
-                    if row > 0 {
-                        for index in 0...(row - 1) {
-                            if let maskDig = IPSubnetCalc.digitize(maskbits: subnetsVLSM[index].0) {
-                                subnet = subnet + ~maskDig + 1
-                            }
-                        }
-                    }
-                    if colId == "subnetVLSMCol" {
-                        return IPSubnetCalc.dottedDecimal(ipAddress: subnet)
-                    } else if colId == "maskVLSMCol" {
-                        return subnetsVLSM[row].0
-                    } else if colId == "nameVLSMCol" {
-                        return subnetsVLSM[row].1
-                    } else if colId == "usedVLSMCol" {
-                        return subnetsVLSM[row].2
-                    } else if colId == "rangeVLSMCol" {
-                        let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: subnetsVLSM[row].0)
-                        return ipscTmp?.subnetRange()
-                    } else if colId == "broadcastVLSMCol" {
-                        let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: subnetsVLSM[row].0)
-                        return ipscTmp?.subnetBroadcast()
-                    }
-                }
+            if colId == "subnetVLSMCol" {
+                return IPSubnetCalc.dottedDecimal(ipAddress: subnet)
+            } else if colId == "maskVLSMCol" {
+                return subnetsVLSM[row].0
+            } else if colId == "nameVLSMCol" {
+                return subnetsVLSM[row].1
+            } else if colId == "usedVLSMCol" {
+                return subnetsVLSM[row].2
+            } else if colId == "rangeVLSMCol" {
+                let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: subnetsVLSM[row].0)
+                return ipscTmp?.subnetRange()
+            } else if colId == "broadcastVLSMCol" {
+                let ipscTmp = IPSubnetCalc(ipAddress: IPSubnetCalc.dottedDecimal(ipAddress: subnet), maskbits: subnetsVLSM[row].0)
+                return ipscTmp?.subnetBroadcast()
             }
         }
         return nil
@@ -1946,22 +1938,24 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         let themeRootItem = NSMenuItem(title: "Theme", action: nil, keyEquivalent: "")
         let themeMenu = NSMenu(title: "Theme")
 
-        var currentGroup = ""
-        for theme in AppThemeID.allCases {
-            if theme.groupName != currentGroup {
-                if !currentGroup.isEmpty {
-                    themeMenu.addItem(NSMenuItem.separator())
-                }
-                currentGroup = theme.groupName
-                let header = NSMenuItem(title: currentGroup, action: nil, keyEquivalent: "")
-                header.isEnabled = false
-                themeMenu.addItem(header)
+        for groupName in AppThemeID.all25ThemeGroups {
+            let groupItem = NSMenuItem(title: groupName, action: nil, keyEquivalent: "")
+            let subMenu = NSMenu(title: groupName)
+
+            let themesInGroup = AppThemeID.allCases.filter { $0.groupName == groupName }
+            var isGroupActive = false
+            for theme in themesInGroup {
+                let item = NSMenuItem(title: theme.subthemeName, action: #selector(didSelectThemeMenuItem(_:)), keyEquivalent: "")
+                item.target = self
+                item.representedObject = theme
+                let active = (theme == ThemeManager.currentThemeID)
+                item.state = active ? .on : .off
+                if active { isGroupActive = true }
+                subMenu.addItem(item)
             }
-            let item = NSMenuItem(title: theme.rawValue, action: #selector(didSelectThemeMenuItem(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = theme
-            item.state = (theme == ThemeManager.currentThemeID) ? .on : .off
-            themeMenu.addItem(item)
+            groupItem.submenu = subMenu
+            groupItem.state = isGroupActive ? .on : .off
+            themeMenu.addItem(groupItem)
         }
 
         themeRootItem.submenu = themeMenu
@@ -1982,11 +1976,19 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
     func applyCurrentThemeToUI() {
         ThemeManager.styleWindow(window)
 
-        // Update menu checkmarks
+        // Update menu checkmarks hierarchically
         if let themeMenu = NSApp.mainMenu?.item(withTitle: "Theme")?.submenu {
-            for item in themeMenu.items {
-                if let theme = item.representedObject as? AppThemeID {
-                    item.state = (theme == ThemeManager.currentThemeID) ? .on : .off
+            for groupItem in themeMenu.items {
+                if let subMenu = groupItem.submenu {
+                    var groupActive = false
+                    for subItem in subMenu.items {
+                        if let theme = subItem.representedObject as? AppThemeID {
+                            let active = (theme == ThemeManager.currentThemeID)
+                            subItem.state = active ? .on : .off
+                            if active { groupActive = true }
+                        }
+                    }
+                    groupItem.state = groupActive ? .on : .off
                 }
             }
         }
@@ -2389,25 +2391,43 @@ final class AboutWindowController: NSWindowController {
 
         case 1:
             // Themes
-            attrStr.append(NSAttributedString(string: "🎨 14 Developer Themes (ActuallyTaylor/Swift-Themes)\n", attributes: titleAttrs))
-            attrStr.append(NSAttributedString(string: "SubnetCalc includes standard color palettes from ActuallyTaylor/Swift-Themes:\n\n", attributes: bodyAttrs))
+            attrStr.append(NSAttributedString(string: "🎨 25 Developer Theme Families (2020–2026 Trends)\n", attributes: titleAttrs))
+            attrStr.append(NSAttributedString(string: "SubnetCalc integrates 25 iconic developer theme suites with authentic, calibrated color palettes:\n\n", attributes: bodyAttrs))
 
-            attrStr.append(NSAttributedString(string: "• Catppuccin: ", attributes: subheadAttrs))
-            attrStr.append(NSAttributedString(string: "Mocha (Default Dark), Macchiato, Frappé, Latte (Light)\n", attributes: bodyAttrs))
+            let themeFamilies: [(String, String)] = [
+                ("Catppuccin", "Mocha (Default Dark), Macchiato, Frappé, Latte (Light)"),
+                ("Dracula", "Official, Soft, Alucard"),
+                ("Tokyo Night", "Dark, Storm, Light"),
+                ("Nord", "Dark, Polar, Light"),
+                ("One Dark", "One Dark Pro, One Dark Vivid, One Light"),
+                ("Gruvbox", "Dark Hard, Dark Medium, Light"),
+                ("Solarized", "Dark & Light precision scientific palettes"),
+                ("GitHub", "Dark, Dark Dimmed, Light"),
+                ("Monokai", "Classic, Pro, Charcoal"),
+                ("Rosé Pine", "Main, Moon, Dawn (Light)"),
+                ("Ayu", "Dark, Mirage, Light"),
+                ("Kanagawa", "Wave, Dragon, Lotus (Light)"),
+                ("Everforest", "Dark Hard, Dark Medium, Light"),
+                ("Night Owl", "Dark & Light Owl"),
+                ("Material", "Palenight, Deep Ocean, Lighter"),
+                ("SynthWave '84", "Glow & Classic retro cyberpunk"),
+                ("Cyberpunk", "Cyberpunk 2077 & Scarlet"),
+                ("Shades of Purple", "Super Dark & Classic"),
+                ("Poimandres", "Dark & Storm"),
+                ("Horizon", "Dark & Bright"),
+                ("Andromeda", "Dark & Bordered"),
+                ("Nightfox", "Nightfox Dark, Duskfox, Dawnfox"),
+                ("Cobalt2", "Classic & Bright"),
+                ("Alabaster", "Dark & Light minimal clarity"),
+                ("Tomorrow", "Night, Night Blue, Night Eighties, Night Bright, Day")
+            ]
 
-            attrStr.append(NSAttributedString(string: "• Dracula: ", attributes: subheadAttrs))
-            attrStr.append(NSAttributedString(string: "Official high-contrast vampire dark palette\n", attributes: bodyAttrs))
+            for (family, variants) in themeFamilies {
+                attrStr.append(NSAttributedString(string: "• \(family): ", attributes: subheadAttrs))
+                attrStr.append(NSAttributedString(string: "\(variants)\n", attributes: bodyAttrs))
+            }
 
-            attrStr.append(NSAttributedString(string: "• Gruvbox: ", attributes: subheadAttrs))
-            attrStr.append(NSAttributedString(string: "Dark & Light retro groove palettes\n", attributes: bodyAttrs))
-
-            attrStr.append(NSAttributedString(string: "• Solarized: ", attributes: subheadAttrs))
-            attrStr.append(NSAttributedString(string: "Dark & Light precision scientific palettes\n", attributes: bodyAttrs))
-
-            attrStr.append(NSAttributedString(string: "• Tomorrow: ", attributes: subheadAttrs))
-            attrStr.append(NSAttributedString(string: "Night Blue, Night, Night Eighties, Night Bright, Day\n\n", attributes: bodyAttrs))
-
-            attrStr.append(NSAttributedString(string: "Switch themes dynamically at any time using the Theme menu in the macOS Menu Bar!\n", attributes: titleAttrs))
+            attrStr.append(NSAttributedString(string: "\nSwitch themes dynamically at any time using the Theme menu in the macOS Menu Bar!\n", attributes: titleAttrs))
 
         default:
             // Credits & Lineage
