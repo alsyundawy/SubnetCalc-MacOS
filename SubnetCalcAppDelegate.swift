@@ -2050,15 +2050,22 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         ThemeManager.styleWindow(window)
         setupThemeMenu()
 
+        // 0. Ensure minimum width of 780 to prevent form/text truncation
+        if window.frame.size.width < 780 {
+            var frame = window.frame
+            frame.size.width = 780
+            window.setFrame(frame, display: true)
+        }
+        window.minSize = NSSize(width: 780, height: 694)
+
         // 1. Position addrField cleanly
-        let addrFrame = addrField.frame
-        let newAddrWidth: CGFloat = 175
-        addrField.frame = NSRect(x: addrFrame.origin.x, y: addrFrame.origin.y, width: newAddrWidth, height: addrFrame.size.height)
+        let addrFrame = NSRect(x: 132, y: 651, width: 220, height: 25)
+        addrField.frame = addrFrame
 
         // 2. Setup RFC 1918 / IPv6 Classification Pill Badge directly beside IP Address field
         if rfcClassificationBadge == nil, let contentView = window.contentView {
-            let badgeX = addrFrame.origin.x + newAddrWidth + 6
-            let badge = NSTextField(frame: NSRect(x: badgeX, y: addrFrame.origin.y + 1, width: 66, height: 22))
+            let badgeX: CGFloat = 358
+            let badge = NSTextField(frame: NSRect(x: badgeX, y: addrFrame.origin.y + 1, width: 72, height: 22))
             badge.isBezeled = false
             badge.isEditable = false
             badge.drawsBackground = true
@@ -2069,8 +2076,8 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
 
         // 3. Setup Cloud Profile Popup next to RFC classification badge
         if cloudProfilePopup == nil, let contentView = window.contentView {
-            let popupX = addrFrame.origin.x + newAddrWidth + 6 + 66 + 6
-            let popup = NSPopUpButton(frame: NSRect(x: popupX, y: addrFrame.origin.y, width: 74, height: addrFrame.size.height), pullsDown: false)
+            let popupX: CGFloat = 436
+            let popup = NSPopUpButton(frame: NSRect(x: popupX, y: addrFrame.origin.y, width: 80, height: addrFrame.size.height), pullsDown: false)
             popup.font = NSFont.systemFont(ofSize: 11, weight: .medium)
             for profile in CloudProfile.allCases {
                 popup.addItem(withTitle: profile.rawValue)
@@ -2080,6 +2087,19 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
             contentView.addSubview(popup)
             self.cloudProfilePopup = popup
         }
+
+        // Align Calc button, IP Address label, and Export button cleanly
+        if let contentView = window.contentView {
+            for subview in contentView.subviews {
+                if let btn = subview as? NSButton, btn.action == #selector(calc(_:)) {
+                    btn.frame = NSRect(x: 526, y: 647, width: 84, height: 32)
+                }
+                if let tf = subview as? NSTextField, tf.stringValue == "IP Address" {
+                    tf.frame = NSRect(x: 48, y: 656, width: 77, height: 17)
+                }
+            }
+        }
+        exportButton.frame = NSRect(x: 720, y: 652, width: 46, height: 25)
 
         // 4. Setup VLSM Efficiency Analytics in VLSM Tab
         if vlsmEfficiencyLabel == nil && tabView.numberOfTabViewItems > 4 {
@@ -2115,7 +2135,7 @@ class SubnetCalcAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, 
         // 6. Setup IPv6 ULA Generator Button inside IPv6 Address Box (Zero Overlap)
         if let ipv6Box = ipv6Address.superview {
             if ipv6Box.subviews.first(where: { ($0 as? NSButton)?.action == #selector(generateIPv6ULAAction(_:)) }) == nil {
-                let ulaButton = NSButton(frame: NSRect(x: 300, y: 11, width: 106, height: 26))
+                let ulaButton = NSButton(frame: NSRect(x: 324, y: 11, width: 106, height: 26))
                 ulaButton.title = "Generate ULA"
                 ulaButton.bezelStyle = .rounded
                 ulaButton.font = NSFont.systemFont(ofSize: 11, weight: .medium)
