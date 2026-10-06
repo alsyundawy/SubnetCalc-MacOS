@@ -134,8 +134,11 @@ Version 2.6.1 introduces three dedicated GitHub Actions automation pipelines:
 - Executes native `xcodebuild` with ad-hoc signing bypass for CI environments.
 - Verifies binary architecture using `file` and `lipo -info`.
 
-### 2. Universal 2 Builder & Release Automation (`.github/workflows/macos-builder.yml`)
+### 2. Multi-Architecture CI & Release Builder Workflows (`.github/workflows/build.yml` & `.github/workflows/release.yml`)
 
+- Separated into two distinct, decoupled GitHub Actions workflows modeled after [`NotepadNext-MacOS`](https://github.com/alsyundawy/NotepadNext-MacOS):
+  - **`build.yml` (macOS CI Builder)**: Triggers on `push` to `master`, PRs, and manual `workflow_dispatch`. Compiles the Universal 2 binary, slices architectures, packages DMGs/ZIPs, computes SHA-256 checksums, and uploads CI artifacts without publishing GitHub Releases.
+  - **`release.yml` (macOS Release Builder)**: Triggers strictly on tag push (`v*`) and manual `workflow_dispatch`. Compiles, slices, packages standard `SubnetCalc.app` DMGs with `/Applications` symlinks, computes `SHA256SUMS.txt`, and publishes official release assets via `softprops/action-gh-release@v2`.
 - Compiles a fat **Universal 2 Binary**:
 
   ```bash
@@ -154,7 +157,7 @@ Version 2.6.1 introduces three dedicated GitHub Actions automation pipelines:
   - `SubnetCalc-${VERSION}-arm64.dmg` / `.zip` (Apple Silicon native)
   - `SubnetCalc-${VERSION}-x64.dmg` / `.zip` (Intel x86_64 native)
   - `SHA256SUMS.txt` cryptographic checksums
-- Automatically creates and publishes a GitHub Release when tags (`v*`) are pushed.
+- Guarantees zero duplicate file generation and zero release conflicts.
 
 ### 3. CodeQL Advanced Security (`.github/workflows/codeql.yml`)
 

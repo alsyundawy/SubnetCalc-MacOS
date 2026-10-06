@@ -275,10 +275,16 @@ ditto -c -k --sequesterRsrc --keepParent \
 
 ## Changelog
 
-### [v2.6.2] — Modern Dark Glassmorphic UI & Multi-Cloud Subnetting
+### [v2.6.2] — Modern 14-Theme Engine, Multi-Cloud Subnetting & Decoupled CI/CD
 
-- **Modern Dark Glassmorphic Theme (`ThemeManager.swift`)**:
-  - Native macOS Dark Aqua theme (`#080c16`, `#0f172a`) and attributed color-coded bit visualizer (Cyan `n`, Purple `s`, Emerald `h`, Muted `.`).
+- **ActuallyTaylor/Swift-Themes 14-Theme Engine (`ThemeManager.swift`)**:
+  - Full suite of 14 themes across Catppuccin (Mocha default), Dracula, Gruvbox, Solarized, and Tomorrow with Menu Bar switcher and `UserDefaults` persistence.
+- **Bespoke Modern About Window (`AboutWindowController`)**:
+  - Native 540×500 AppKit About panel with segmented view controls (Capabilities, Themes, Credits & Lineage) and interactive links.
+- **Decoupled CI & Release Runner Workflows (`build.yml` & `release.yml`)**:
+  - Separated CI build runner and release builder workflows modeled after `NotepadNext-MacOS`, eliminating duplicate runs and duplicate release assets.
+- **Canonical `SubnetCalc.app` Distribution Invariant**:
+  - Standard `SubnetCalc.app` bundle name inside all Universal 2, ARM64, and Intel DMGs and ZIPs, with `/Applications` drag-and-drop symlinks.
 - **Multi-Cloud Subnet Reservation Profiles (`CloudProfile`)**:
   - Interactive profile engine for AWS VPC, Azure VNet, Google Cloud (GCP) VPC, Oracle Cloud (OCI), and Standard RFC 1918.
 - **Real-Time RFC 1918 & IP Range Classifier**:

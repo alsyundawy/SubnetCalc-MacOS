@@ -25,8 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Features styled 68x68 app icon, bold typography, version badges (`v2.6.2 (Build 14)`, `Universal 2`, `macOS 10.15+`, `GPL-2.0`).
   - Interactive segmented control switching between **Capabilities**, **Themes**, and **Credits & Lineage** (honoring original author Julien Mulot, maintainer Harry Dertin Sutisna Alsyundawy, algorithmic oracle Dr. Thomas Dreibholz, and themes author Taylor Lindsey).
   - Direct action buttons opening the GitHub repository, maintainer website (`https://alsyundawy.com`), and dismiss controls.
+- **Decoupled CI & Release Runner Workflows (`build.yml` & `release.yml`)**:
+  - Separated builder runners into two specialized workflows modeled after [`NotepadNext-MacOS`](https://github.com/alsyundawy/NotepadNext-MacOS):
+    - `build.yml` for continuous integration on `master` branch push and pull requests (builds, packages, and uploads Actions artifacts without touching GitHub Releases).
+    - `release.yml` exclusively triggered on tag push (`v*`) to build, calculate SHA-256 checksums, and publish release DMGs/ZIPs to GitHub Releases.
+  - Eliminated duplicate file generation, double runner executions, and release conflicts.
 - **Canonical `SubnetCalc.app` Distribution Invariant**:
-  - Re-engineered builder runner workflow (`macos-builder.yml`) so that inside every `.dmg` disk image and `.zip` archive across all architectures (`Universal 2`, `arm64`, and `x86_64`), the application bundle is strictly named **`SubnetCalc.app`**.
+  - Re-engineered builder runner workflows so that inside every `.dmg` disk image and `.zip` archive across all architectures (`Universal 2`, `arm64`, and `x86_64`), the application bundle is strictly named **`SubnetCalc.app`**.
   - Added automated `/Applications` drag-and-drop symlinks to all `.dmg` staging folders.
 - **High-Definition Desktop Banner Flyer**:
   - Created a crystal-clear, razor-sharp cyberpunk neon banner flyer (`assets/subnetcalc-desktop-banner.jpg`) modeled after the flagship desktop flyer design without hardcoded version numbers, prominently embedded at the top of `README.md`.

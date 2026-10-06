@@ -1,10 +1,12 @@
-name: macOS Builder & Release (Universal 2 - Intel & Apple Silicon)
+name: macOS Builder (CI)
 
 on:
   push:
     branches: ["master"]
-    tags:
-      - "v*"
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "assets/**"
   pull_request:
     branches: ["master"]
   workflow_dispatch:
@@ -13,15 +15,13 @@ permissions:
   contents: read
 
 jobs:
-  build-universal-release:
-    name: Build & Package Universal App (Intel & ARM64)
+  build-universal-ci:
+    name: Build & Package Universal App (CI)
     runs-on: macos-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Environment Diagnostics
         run: |
@@ -75,7 +75,7 @@ jobs:
       - name: Package Applications (DMG & ZIPs)
         run: |
           VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" build/Release/universal/SubnetCalc.app/Contents/Info.plist 2>/dev/null || echo "2.6.2")
-          echo "Packaging SubnetCalc release artifacts for version: ${VERSION}"
+          echo "Packaging SubnetCalc CI build artifacts for version: ${VERSION}"
           mkdir -p dist
 
           # 1. Package Universal DMG & ZIP (inside DMG is SubnetCalc.app)
@@ -128,19 +128,9 @@ jobs:
           cat SHA256SUMS.txt
           cd ..
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v7
+      - name: Upload Build Artifacts (CI Only)
+        uses: actions/upload-artifact@v4
         with:
-          name: SubnetCalc-macOS-Builds
+          name: SubnetCalc-macOS-CI-Builds
           path: dist/*
           if-no-files-found: error
-
-      - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/*.dmg
-            dist/*.zip
-            dist/SHA256SUMS.txt
-          generate_release_notes: true

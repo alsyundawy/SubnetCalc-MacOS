@@ -1,0 +1,140 @@
+name: macOS Release Builder
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-universal-release:
+    name: Build & Publish Release Artifacts
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Environment Diagnostics
+        run: |
+          echo "Host Runner: $(uname -s) $(uname -m)"
+          xcodebuild -version
+
+      - name: Build Universal 2 Binary (arm64 & x86_64)
+        run: |
+          mkdir -p build/Release dist
+          xcodebuild build \
+            -project SubnetCalc.xcodeproj \
+            -scheme SubnetCalc \
+            -configuration Release \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CONFIGURATION_BUILD_DIR="$PWD/build/Release" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Verify Universal Binary with Lipo
+        run: |
+          BINARY_PATH="build/Release/SubnetCalc.app/Contents/MacOS/SubnetCalc"
+          if [ ! -f "$BINARY_PATH" ]; then
+            echo "Error: Binary not found at $BINARY_PATH"
+            exit 1
+          fi
+          echo "=== File Type ==="
+          file "$BINARY_PATH"
+          echo "=== Lipo Info ==="
+          lipo -info "$BINARY_PATH"
+
+      - name: Create Separate Architecture Slices (Universal, ARM64, Intel)
+        run: |
+          mkdir -p build/Release/universal build/Release/arm64 build/Release/x86_64
+
+          # 1. Prepare Universal App
+          cp -R build/Release/SubnetCalc.app build/Release/universal/SubnetCalc.app
+          codesign --force --deep --sign - build/Release/universal/SubnetCalc.app
+
+          # 2. Prepare ARM64-only Slice (bundle named SubnetCalc.app)
+          cp -R build/Release/SubnetCalc.app build/Release/arm64/SubnetCalc.app
+          lipo build/Release/SubnetCalc.app/Contents/MacOS/SubnetCalc -thin arm64 -output build/Release/arm64/SubnetCalc.app/Contents/MacOS/SubnetCalc
+          codesign --force --deep --sign - build/Release/arm64/SubnetCalc.app
+
+          # 3. Prepare Intel (x86_64)-only Slice (bundle named SubnetCalc.app)
+          cp -R build/Release/SubnetCalc.app build/Release/x86_64/SubnetCalc.app
+          lipo build/Release/SubnetCalc.app/Contents/MacOS/SubnetCalc -thin x86_64 -output build/Release/x86_64/SubnetCalc.app/Contents/MacOS/SubnetCalc
+          codesign --force --deep --sign - build/Release/x86_64/SubnetCalc.app
+
+      - name: Package Applications (DMG & ZIPs)
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" build/Release/universal/SubnetCalc.app/Contents/Info.plist 2>/dev/null || echo "2.6.2")
+          echo "Packaging SubnetCalc release artifacts for version: ${VERSION}"
+          mkdir -p dist
+
+          # 1. Package Universal DMG & ZIP (inside DMG is SubnetCalc.app)
+          mkdir -p dmg_staging_universal
+          cp -R build/Release/universal/SubnetCalc.app dmg_staging_universal/SubnetCalc.app
+          ln -s /Applications dmg_staging_universal/Applications
+          hdiutil create -volname "SubnetCalc" \
+            -srcfolder dmg_staging_universal \
+            -ov -format UDZO \
+            "dist/SubnetCalc-${VERSION}-Universal.dmg"
+          rm -rf dmg_staging_universal
+
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Release/universal/SubnetCalc.app \
+            "dist/SubnetCalc-${VERSION}-Universal.zip"
+
+          # 2. Package Apple Silicon (arm64) DMG & ZIP (inside DMG is SubnetCalc.app)
+          mkdir -p dmg_staging_arm64
+          cp -R build/Release/arm64/SubnetCalc.app dmg_staging_arm64/SubnetCalc.app
+          ln -s /Applications dmg_staging_arm64/Applications
+          hdiutil create -volname "SubnetCalc" \
+            -srcfolder dmg_staging_arm64 \
+            -ov -format UDZO \
+            "dist/SubnetCalc-${VERSION}-arm64.dmg"
+          rm -rf dmg_staging_arm64
+
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Release/arm64/SubnetCalc.app \
+            "dist/SubnetCalc-${VERSION}-arm64.zip"
+
+          # 3. Package Intel (x64) DMG & ZIP (inside DMG is SubnetCalc.app)
+          mkdir -p dmg_staging_x64
+          cp -R build/Release/x86_64/SubnetCalc.app dmg_staging_x64/SubnetCalc.app
+          ln -s /Applications dmg_staging_x64/Applications
+          hdiutil create -volname "SubnetCalc" \
+            -srcfolder dmg_staging_x64 \
+            -ov -format UDZO \
+            "dist/SubnetCalc-${VERSION}-x64.dmg"
+          rm -rf dmg_staging_x64
+
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/Release/x86_64/SubnetCalc.app \
+            "dist/SubnetCalc-${VERSION}-x64.zip"
+
+      - name: Generate Cryptographic SHA-256 Checksums
+        run: |
+          cd dist || exit 1
+          shasum -a 256 ./* > SHA256SUMS.txt
+          echo "=== SHA-256 Checksums ==="
+          cat SHA256SUMS.txt
+          cd ..
+
+      - name: Upload Build Artifacts (Actions Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: SubnetCalc-macOS-Release-Builds
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.dmg
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          generate_release_notes: false
